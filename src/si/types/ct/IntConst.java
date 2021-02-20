@@ -1,6 +1,7 @@
 package si.types.ct;
 
 import si.types.*;
+import si.types.num.Int;
 
 public class IntConst extends Const {
   public long val;

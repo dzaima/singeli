@@ -1,4 +1,4 @@
-package si.types;
+package si.types.num;
 
 public class Float extends Num {
   public final int w;

@@ -2,8 +2,9 @@ package si;
 
 import si.stt.SiExpr;
 import si.types.*;
-import si.types.Float;
+import si.types.num.*;
 import si.types.ct.Const;
+import si.types.num.Float;
 
 import java.util.HashMap;
 

@@ -1,6 +1,7 @@
 package si.types;
 
 import si.ParseError;
+import si.types.num.Num;
 
 public final class VecType extends Type {
   public static final int MAX_SIZE = Integer.MAX_VALUE;

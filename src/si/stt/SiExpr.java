@@ -4,6 +4,7 @@ import si.*;
 import si.gen.SingeliParser.*;
 import si.types.*;
 import si.types.ct.*;
+import si.types.num.*;
 
 import java.util.List;
 
