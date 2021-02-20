@@ -31,4 +31,10 @@ public class IntConst extends Const {
   }
   
   public String toString() { return val+":"+type; }
+  public int hashCode() { return type.hashCode()+(int)val*1732050807; }
+  public boolean equals(Object o) {
+    if (!(o instanceof IntConst)) return false;
+    IntConst t = (IntConst) o;
+    return t.type.equals(type) && val==t.val;
+  }
 }

@@ -20,7 +20,6 @@ public final class Int extends Num {
     this.name = (signed? "i" : "u") + w;
     mask = w==64? -1L : (1L<<w)-1;
   }
-  public String toString() { return name; }
   
   public static final HashMap<String, Int> defTypes = new HashMap<>();
   public static final Int[][] types = new Int[2][4];
@@ -40,4 +39,8 @@ public final class Int extends Num {
     int nwl = Integer.bitCount(nw-1);
     return types[signed?1:0][nwl-3];
   }
+  
+  public String toString() { return name; }
+  public int hashCode() { return System.identityHashCode(this); }
+  public boolean equals(Object o) { return this==o; }
 }

@@ -2,9 +2,9 @@ package si;
 
 import si.stt.SiExpr;
 import si.types.*;
-import si.types.num.*;
 import si.types.ct.Const;
 import si.types.num.Float;
+import si.types.num.*;
 
 import java.util.HashMap;
 
@@ -28,26 +28,32 @@ public class Sc {
     defs = new HashMap<>();
   }
   
-  public SiFn getFn(String name) {
-    return prog.fn(name);
-  }
   
   public Def texpr(TexprContext te) {
     ExprContext expr = te.expr();
     if (expr!=null) return SiExpr.processDef(this, expr);
-    throw new ParseError("TODO callable texpr");
+    CallableContext c = te.callable();
+    return new CallableDef.DervDef(getFn(c.NAME().getText()).derv(this, c));
   }
   public Type type(ExprContext e) {
     Def d = SiExpr.processDef(this, e);
-    if (!(d instanceof Type)) throw new ParseError("Expected a type, got value", e);
+    if (!(d instanceof Type)) throw new ParseError("Expected a type, got "+d, e);
     return (Type) d;
   }
+  public CallableDef getFn(String name) {
+    Def d = getDef(name);
+    if (d instanceof CallableDef) return (CallableDef) d;
+    throw new ParseError(name+" was not a function");
+  }
   
-  public Def getDef(String n) {
-    Def def = defs.get(n);
+  public void addDef(String k, Def v) {
+    defs.put(k, v);
+  }
+  public Def getDef(String name) {
+    Def def = defs.get(name);
     if (def==null) {
-      if (p==null) throw new ParseError("Unknown type/constant "+n);
-      return p.getDef(n);
+      if (p==null) throw new ParseError("Unresolved name "+name);
+      return p.getDef(name);
     }
     return def;
   }
@@ -59,8 +65,9 @@ public class Sc {
   public Type var(String name) {
     Def def = defs.get(name);
     if (def!=null) {
-      if (def instanceof Const) return ((Const) def).type(); // TODO take tk info arg
-      return (Type) def;
+      if (def instanceof Const) return ((Const) def).type();
+      if (def instanceof Type) return (Type) def;
+      throw new ParseError("Unknown variable "+name);
     }
     if (p==null) throw new ParseError("Unknown variable "+name);
     return p.var(name);
@@ -68,9 +75,6 @@ public class Sc {
   
   public static class ChSc extends Sc {
     public ChSc(Sc p) { super(p); }
-    public void addDef(String k, Def v) {
-      defs.put(k, v);
-    }
     HashMap<String, Type> vars = new HashMap<>();
     public void addVar(String k, Type t) {
       vars.put(k, t);

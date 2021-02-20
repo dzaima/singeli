@@ -2,6 +2,7 @@ package si;
 
 import org.antlr.v4.runtime.*;
 import si.gen.*;
+import si.types.CallableDef;
 
 import java.util.HashMap;
 
@@ -10,10 +11,13 @@ public class SiProg {
   public SiProg(String s) {
     boolean ok = true;
     SingeliParser.ProgContext prog = new SingeliParser(new CommonTokenStream(new SingeliLexer(CharStreams.fromString(s)))).prog();
+    Sc sc = new Sc(this);
     for (SingeliParser.FnContext fn : prog.fn()) {
       SiFn f = new SiFn(this, fn);
       fns.put(f.name, f);
+      sc.addDef(f.name, new CallableDef.FnDef(f));
     }
+    
     HashMap<String, Void> symbols = new HashMap<>();
     String[] lns = null;
     for (SingeliParser.ExportContext exp : prog.export()) {
@@ -21,7 +25,6 @@ public class SiProg {
       symb = symb.substring(1, symb.length()-1);
       try {
         if (symbols.containsKey(symb)) throw new ParseError("Defining symbol "+symb+" twice", exp.SYMB());
-        Sc sc = new Sc(this);
         SingeliParser.CallableContext c = exp.callable();
         String fn = c.NAME().getText();
         fn(fn).derv(sc, c);

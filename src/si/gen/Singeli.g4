@@ -2,7 +2,7 @@ grammar Singeli;
 
 NAME : [a-zA-Z_] [a-zA-Z_0-9]*;
 
-SYMB: '\'' (~['] | '\\' ["'nrt])* '\'';
+SYMB: '\'' [a-zA-Z_$] [a-zA-Z_%0-9]* '\'';
 
 INT: [1-9] [0-9]* | '0';
 HEX: '0' 'x' [0-9a-fA-F]+;

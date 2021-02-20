@@ -9,7 +9,7 @@ import si.types.num.*;
 import java.util.List;
 
 public class SiExpr {
-  public static Type process(Sc sc, ExprContext e) {
+  public static Type process(Sc.ChSc sc, ExprContext e) {
     if (e instanceof VarExprContext) return sc.var(((VarExprContext) e).NAME().getText());
     
     if (e instanceof IntExprContext) return Int.i32;
@@ -82,7 +82,7 @@ public class SiExpr {
   }
   public static Const processConst(Sc sc, ExprContext e) {
     Def d = processDef(sc, e);
-    if (!(d instanceof Const)) throw new ParseError("Expected a value, got type", e);
+    if (!(d instanceof Const)) throw new ParseError("Expected a value, got "+d, e);
     return (Const) d;
   }
 }
