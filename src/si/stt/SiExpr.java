@@ -23,6 +23,14 @@ public class SiExpr {
       if (!(l instanceof Num) && !(l instanceof VecType)) throw new ParseError("Didn't expect "+l+" as argument to '+'", ec);
       return l;
     }
+    if (e instanceof MulExprContext) {
+      MulExprContext ec = (MulExprContext) e;
+      Type l = process(sc, ec.expr(0));
+      Type r = process(sc, ec.expr(1));
+      if (!l.equals(r)) throw new ParseError("Expected '*' to have args of equal types: got "+l+" and "+r, ec);
+      if (!(l instanceof Num) && !(l instanceof VecType)) throw new ParseError("Didn't expect "+l+" as argument to '*'", ec);
+      return l;
+    }
     if (e instanceof CallExprContext) {
       CallExprContext ec = (CallExprContext) e;
       CallableContext c = ec.callable();
