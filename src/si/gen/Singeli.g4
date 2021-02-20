@@ -20,13 +20,13 @@ type: NAME              # name
     ;
 
 texpr: type | expr;
-targExpr: ('{' texpr (','texpr)* '}')?;
+callable: NAME ('{' texpr (','texpr)* '}')?;
 
-expr: NAME                                     # varExpr
-    | INT                                      # intExpr
-    | NAME targExpr '(' (expr (','expr)*)? ')' # callExpr
-    | expr '*' expr                            # mulExpr
-    | expr '+' expr                            # addExpr
+expr: NAME                                # varExpr
+    | INT                                 # intExpr
+    | callable '(' (expr (','expr)*)? ')' # callExpr
+    | expr '*' expr                       # mulExpr
+    | expr '+' expr                       # addExpr
     ;
 
 stt: expr ';'                      # exprStt
@@ -37,7 +37,7 @@ stt: expr ';'                      # exprStt
 targ: NAME;
 arg: NAME ':' type;
 fn: NAME ('{' targ (','targ)* '}')? '(' (arg (','arg)*)? ')' (':' type)? ('{' stt* expr? '}' | '=>' expr ';');
-export: SYMB '=' NAME targExpr ';';
+export: SYMB '=' callable ';';
 
 prog: (fn | export)*;
 WS: [ \t\n\r] + -> skip;

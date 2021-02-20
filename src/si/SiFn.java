@@ -37,11 +37,12 @@ public class SiFn {
     }
   }
   
-  public Derv derv(Sc sc, List<TexprContext> exprs, Token callsite) {
-    List<Def> targTypes = new ArrayList<>(exprs.size());
-    if (exprs.size() != targNames.length) throw new ParseError("Incorrect targ count", callsite);
-    for (TexprContext e : exprs) targTypes.add(sc.texpr(e));
-    return dervRaw(sc.sub(), targTypes, callsite);
+  public Derv derv(Sc sc, CallableContext c) {
+    List<TexprContext> ctxs = c.texpr();
+    if (ctxs.size() != targNames.length) throw new ParseError("Incorrect targ count: expected "+targNames.length+", got "+ctxs.size(), c);
+    List<Def> targTypes = new ArrayList<>(ctxs.size());
+    for (TexprContext e : ctxs) targTypes.add(sc.texpr(e));
+    return dervRaw(sc.sub(), targTypes, c.NAME().getSymbol());
   }
   
   private boolean deriving;

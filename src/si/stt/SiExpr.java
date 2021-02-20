@@ -25,8 +25,8 @@ public class SiExpr {
     }
     if (e instanceof CallExprContext) {
       CallExprContext ec = (CallExprContext) e;
-      SiFn fn = sc.getFn(ec.NAME().getText());
-      SiFn.Derv derv = fn.derv(sc, ec.targExpr().texpr(), ec.NAME().getSymbol());
+      CallableContext c = ec.callable();
+      SiFn.Derv derv = sc.getFn(c.NAME().getText()).derv(sc, c);
       List<ExprContext> args = ec.expr();
       if (args.size()!=derv.args.length) throw new ParseError("Incorrect argument count", ec);
       for (int i = 0; i < args.size(); i++) {

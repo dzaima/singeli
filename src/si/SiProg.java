@@ -21,9 +21,10 @@ public class SiProg {
       symb = symb.substring(1, symb.length()-1);
       try {
         if (symbols.containsKey(symb)) throw new ParseError("Defining symbol "+symb+" twice", exp.SYMB());
-        String fn = exp.NAME().getText();
         Sc sc = new Sc(this);
-        fn(fn).derv(sc, exp.targExpr().texpr(), exp.targExpr().getStart());
+        SingeliParser.CallableContext c = exp.callable();
+        String fn = c.NAME().getText();
+        fn(fn).derv(sc, c);
         symbols.put(symb, null);
       } catch (ParseError e) {
         if (lns==null) lns = s.split("\n");

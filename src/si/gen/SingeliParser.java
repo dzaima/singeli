@@ -21,11 +21,11 @@ public class SingeliParser extends Parser {
 		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, NAME=15, SYMB=16, INT=17, 
 		HEX=18, DEC=19, WS=20, COMMENT=21, LINE_COMMENT=22;
 	public static final int
-		RULE_type = 0, RULE_texpr = 1, RULE_targExpr = 2, RULE_expr = 3, RULE_stt = 4, 
+		RULE_type = 0, RULE_texpr = 1, RULE_callable = 2, RULE_expr = 3, RULE_stt = 4, 
 		RULE_targ = 5, RULE_arg = 6, RULE_fn = 7, RULE_export = 8, RULE_prog = 9;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"type", "texpr", "targExpr", "expr", "stt", "targ", "arg", "fn", "export", 
+			"type", "texpr", "callable", "expr", "stt", "targ", "arg", "fn", "export", 
 			"prog"
 		};
 	}
@@ -259,52 +259,55 @@ public class SingeliParser extends Parser {
 		return _localctx;
 	}
 
-	public static class TargExprContext extends ParserRuleContext {
+	public static class CallableContext extends ParserRuleContext {
+		public TerminalNode NAME() { return getToken(SingeliParser.NAME, 0); }
 		public List<TexprContext> texpr() {
 			return getRuleContexts(TexprContext.class);
 		}
 		public TexprContext texpr(int i) {
 			return getRuleContext(TexprContext.class,i);
 		}
-		public TargExprContext(ParserRuleContext parent, int invokingState) {
+		public CallableContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_targExpr; }
+		@Override public int getRuleIndex() { return RULE_callable; }
 	}
 
-	public final TargExprContext targExpr() throws RecognitionException {
-		TargExprContext _localctx = new TargExprContext(_ctx, getState());
-		enterRule(_localctx, 4, RULE_targExpr);
+	public final CallableContext callable() throws RecognitionException {
+		CallableContext _localctx = new CallableContext(_ctx, getState());
+		enterRule(_localctx, 4, RULE_callable);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(50);
+			setState(39);
+			match(NAME);
+			setState(51);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==T__4) {
 				{
-				setState(39);
-				match(T__4);
 				setState(40);
+				match(T__4);
+				setState(41);
 				texpr();
-				setState(45);
+				setState(46);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==T__5) {
 					{
 					{
-					setState(41);
-					match(T__5);
 					setState(42);
+					match(T__5);
+					setState(43);
 					texpr();
 					}
 					}
-					setState(47);
+					setState(48);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(48);
+				setState(49);
 				match(T__6);
 				}
 			}
@@ -360,9 +363,8 @@ public class SingeliParser extends Parser {
 		public MulExprContext(ExprContext ctx) { copyFrom(ctx); }
 	}
 	public static class CallExprContext extends ExprContext {
-		public TerminalNode NAME() { return getToken(SingeliParser.NAME, 0); }
-		public TargExprContext targExpr() {
-			return getRuleContext(TargExprContext.class,0);
+		public CallableContext callable() {
+			return getRuleContext(CallableContext.class,0);
 		}
 		public List<ExprContext> expr() {
 			return getRuleContexts(ExprContext.class);
@@ -398,7 +400,7 @@ public class SingeliParser extends Parser {
 				_ctx = _localctx;
 				_prevctx = _localctx;
 
-				setState(53);
+				setState(54);
 				match(NAME);
 				}
 				break;
@@ -407,7 +409,7 @@ public class SingeliParser extends Parser {
 				_localctx = new IntExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(54);
+				setState(55);
 				match(INT);
 				}
 				break;
@@ -416,10 +418,8 @@ public class SingeliParser extends Parser {
 				_localctx = new CallExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(55);
-				match(NAME);
 				setState(56);
-				targExpr();
+				callable();
 				setState(57);
 				match(T__7);
 				setState(66);
@@ -838,9 +838,8 @@ public class SingeliParser extends Parser {
 
 	public static class ExportContext extends ParserRuleContext {
 		public TerminalNode SYMB() { return getToken(SingeliParser.SYMB, 0); }
-		public TerminalNode NAME() { return getToken(SingeliParser.NAME, 0); }
-		public TargExprContext targExpr() {
-			return getRuleContext(TargExprContext.class,0);
+		public CallableContext callable() {
+			return getRuleContext(CallableContext.class,0);
 		}
 		public ExportContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -859,10 +858,8 @@ public class SingeliParser extends Parser {
 			setState(151);
 			match(T__12);
 			setState(152);
-			match(NAME);
+			callable();
 			setState(153);
-			targExpr();
-			setState(154);
 			match(T__10);
 			}
 		}
@@ -903,23 +900,23 @@ public class SingeliParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(160);
+			setState(159);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==NAME || _la==SYMB) {
 				{
-				setState(158);
+				setState(157);
 				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case NAME:
 					{
-					setState(156);
+					setState(155);
 					fn();
 					}
 					break;
 				case SYMB:
 					{
-					setState(157);
+					setState(156);
 					export();
 					}
 					break;
@@ -927,7 +924,7 @@ public class SingeliParser extends Parser {
 					throw new NoViableAltException(this);
 				}
 				}
-				setState(162);
+				setState(161);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -962,40 +959,40 @@ public class SingeliParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\30\u00a6\4\2\t\2"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\30\u00a5\4\2\t\2"+
 		"\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\5\2$\n\2\3\3"+
-		"\3\3\5\3(\n\3\3\4\3\4\3\4\3\4\7\4.\n\4\f\4\16\4\61\13\4\3\4\3\4\5\4\65"+
-		"\n\4\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\7\5@\n\5\f\5\16\5C\13\5\5\5E"+
-		"\n\5\3\5\3\5\5\5I\n\5\3\5\3\5\3\5\3\5\3\5\3\5\7\5Q\n\5\f\5\16\5T\13\5"+
+		"\3\3\5\3(\n\3\3\4\3\4\3\4\3\4\3\4\7\4/\n\4\f\4\16\4\62\13\4\3\4\3\4\5"+
+		"\4\66\n\4\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\7\5@\n\5\f\5\16\5C\13\5\5\5"+
+		"E\n\5\3\5\3\5\5\5I\n\5\3\5\3\5\3\5\3\5\3\5\3\5\7\5Q\n\5\f\5\16\5T\13\5"+
 		"\3\6\3\6\3\6\3\6\3\6\3\6\5\6\\\n\6\3\6\3\6\3\6\3\6\5\6b\n\6\3\7\3\7\3"+
 		"\b\3\b\3\b\3\b\3\t\3\t\3\t\3\t\3\t\7\to\n\t\f\t\16\tr\13\t\3\t\3\t\5\t"+
 		"v\n\t\3\t\3\t\3\t\3\t\7\t|\n\t\f\t\16\t\177\13\t\5\t\u0081\n\t\3\t\3\t"+
 		"\3\t\5\t\u0086\n\t\3\t\3\t\7\t\u008a\n\t\f\t\16\t\u008d\13\t\3\t\5\t\u0090"+
-		"\n\t\3\t\3\t\3\t\3\t\3\t\5\t\u0097\n\t\3\n\3\n\3\n\3\n\3\n\3\n\3\13\3"+
-		"\13\7\13\u00a1\n\13\f\13\16\13\u00a4\13\13\3\13\2\3\b\f\2\4\6\b\n\f\16"+
-		"\20\22\24\2\2\2\u00b4\2#\3\2\2\2\4\'\3\2\2\2\6\64\3\2\2\2\bH\3\2\2\2\n"+
-		"a\3\2\2\2\fc\3\2\2\2\16e\3\2\2\2\20i\3\2\2\2\22\u0098\3\2\2\2\24\u00a2"+
-		"\3\2\2\2\26$\7\21\2\2\27\30\7\3\2\2\30$\5\2\2\2\31\32\7\23\2\2\32\33\7"+
-		"\3\2\2\33$\5\2\2\2\34\35\7\4\2\2\35$\7\21\2\2\36\37\7\5\2\2\37 \5\b\5"+
-		"\2 !\7\6\2\2!\"\7\21\2\2\"$\3\2\2\2#\26\3\2\2\2#\27\3\2\2\2#\31\3\2\2"+
-		"\2#\34\3\2\2\2#\36\3\2\2\2$\3\3\2\2\2%(\5\2\2\2&(\5\b\5\2\'%\3\2\2\2\'"+
-		"&\3\2\2\2(\5\3\2\2\2)*\7\7\2\2*/\5\4\3\2+,\7\b\2\2,.\5\4\3\2-+\3\2\2\2"+
-		".\61\3\2\2\2/-\3\2\2\2/\60\3\2\2\2\60\62\3\2\2\2\61/\3\2\2\2\62\63\7\t"+
-		"\2\2\63\65\3\2\2\2\64)\3\2\2\2\64\65\3\2\2\2\65\7\3\2\2\2\66\67\b\5\1"+
-		"\2\67I\7\21\2\28I\7\23\2\29:\7\21\2\2:;\5\6\4\2;D\7\n\2\2<A\5\b\5\2=>"+
-		"\7\b\2\2>@\5\b\5\2?=\3\2\2\2@C\3\2\2\2A?\3\2\2\2AB\3\2\2\2BE\3\2\2\2C"+
-		"A\3\2\2\2D<\3\2\2\2DE\3\2\2\2EF\3\2\2\2FG\7\13\2\2GI\3\2\2\2H\66\3\2\2"+
-		"\2H8\3\2\2\2H9\3\2\2\2IR\3\2\2\2JK\f\4\2\2KL\7\3\2\2LQ\5\b\5\5MN\f\3\2"+
-		"\2NO\7\f\2\2OQ\5\b\5\4PJ\3\2\2\2PM\3\2\2\2QT\3\2\2\2RP\3\2\2\2RS\3\2\2"+
-		"\2S\t\3\2\2\2TR\3\2\2\2UV\5\b\5\2VW\7\r\2\2Wb\3\2\2\2X[\7\21\2\2YZ\7\16"+
-		"\2\2Z\\\5\2\2\2[Y\3\2\2\2[\\\3\2\2\2\\]\3\2\2\2]^\7\17\2\2^_\5\b\5\2_"+
-		"`\7\r\2\2`b\3\2\2\2aU\3\2\2\2aX\3\2\2\2b\13\3\2\2\2cd\7\21\2\2d\r\3\2"+
-		"\2\2ef\7\21\2\2fg\7\16\2\2gh\5\2\2\2h\17\3\2\2\2iu\7\21\2\2jk\7\7\2\2"+
-		"kp\5\f\7\2lm\7\b\2\2mo\5\f\7\2nl\3\2\2\2or\3\2\2\2pn\3\2\2\2pq\3\2\2\2"+
-		"qs\3\2\2\2rp\3\2\2\2st\7\t\2\2tv\3\2\2\2uj\3\2\2\2uv\3\2\2\2vw\3\2\2\2"+
-		"w\u0080\7\n\2\2x}\5\16\b\2yz\7\b\2\2z|\5\16\b\2{y\3\2\2\2|\177\3\2\2\2"+
-		"}{\3\2\2\2}~\3\2\2\2~\u0081\3\2\2\2\177}\3\2\2\2\u0080x\3\2\2\2\u0080"+
+		"\n\t\3\t\3\t\3\t\3\t\3\t\5\t\u0097\n\t\3\n\3\n\3\n\3\n\3\n\3\13\3\13\7"+
+		"\13\u00a0\n\13\f\13\16\13\u00a3\13\13\3\13\2\3\b\f\2\4\6\b\n\f\16\20\22"+
+		"\24\2\2\2\u00b3\2#\3\2\2\2\4\'\3\2\2\2\6)\3\2\2\2\bH\3\2\2\2\na\3\2\2"+
+		"\2\fc\3\2\2\2\16e\3\2\2\2\20i\3\2\2\2\22\u0098\3\2\2\2\24\u00a1\3\2\2"+
+		"\2\26$\7\21\2\2\27\30\7\3\2\2\30$\5\2\2\2\31\32\7\23\2\2\32\33\7\3\2\2"+
+		"\33$\5\2\2\2\34\35\7\4\2\2\35$\7\21\2\2\36\37\7\5\2\2\37 \5\b\5\2 !\7"+
+		"\6\2\2!\"\7\21\2\2\"$\3\2\2\2#\26\3\2\2\2#\27\3\2\2\2#\31\3\2\2\2#\34"+
+		"\3\2\2\2#\36\3\2\2\2$\3\3\2\2\2%(\5\2\2\2&(\5\b\5\2\'%\3\2\2\2\'&\3\2"+
+		"\2\2(\5\3\2\2\2)\65\7\21\2\2*+\7\7\2\2+\60\5\4\3\2,-\7\b\2\2-/\5\4\3\2"+
+		".,\3\2\2\2/\62\3\2\2\2\60.\3\2\2\2\60\61\3\2\2\2\61\63\3\2\2\2\62\60\3"+
+		"\2\2\2\63\64\7\t\2\2\64\66\3\2\2\2\65*\3\2\2\2\65\66\3\2\2\2\66\7\3\2"+
+		"\2\2\678\b\5\1\28I\7\21\2\29I\7\23\2\2:;\5\6\4\2;D\7\n\2\2<A\5\b\5\2="+
+		">\7\b\2\2>@\5\b\5\2?=\3\2\2\2@C\3\2\2\2A?\3\2\2\2AB\3\2\2\2BE\3\2\2\2"+
+		"CA\3\2\2\2D<\3\2\2\2DE\3\2\2\2EF\3\2\2\2FG\7\13\2\2GI\3\2\2\2H\67\3\2"+
+		"\2\2H9\3\2\2\2H:\3\2\2\2IR\3\2\2\2JK\f\4\2\2KL\7\3\2\2LQ\5\b\5\5MN\f\3"+
+		"\2\2NO\7\f\2\2OQ\5\b\5\4PJ\3\2\2\2PM\3\2\2\2QT\3\2\2\2RP\3\2\2\2RS\3\2"+
+		"\2\2S\t\3\2\2\2TR\3\2\2\2UV\5\b\5\2VW\7\r\2\2Wb\3\2\2\2X[\7\21\2\2YZ\7"+
+		"\16\2\2Z\\\5\2\2\2[Y\3\2\2\2[\\\3\2\2\2\\]\3\2\2\2]^\7\17\2\2^_\5\b\5"+
+		"\2_`\7\r\2\2`b\3\2\2\2aU\3\2\2\2aX\3\2\2\2b\13\3\2\2\2cd\7\21\2\2d\r\3"+
+		"\2\2\2ef\7\21\2\2fg\7\16\2\2gh\5\2\2\2h\17\3\2\2\2iu\7\21\2\2jk\7\7\2"+
+		"\2kp\5\f\7\2lm\7\b\2\2mo\5\f\7\2nl\3\2\2\2or\3\2\2\2pn\3\2\2\2pq\3\2\2"+
+		"\2qs\3\2\2\2rp\3\2\2\2st\7\t\2\2tv\3\2\2\2uj\3\2\2\2uv\3\2\2\2vw\3\2\2"+
+		"\2w\u0080\7\n\2\2x}\5\16\b\2yz\7\b\2\2z|\5\16\b\2{y\3\2\2\2|\177\3\2\2"+
+		"\2}{\3\2\2\2}~\3\2\2\2~\u0081\3\2\2\2\177}\3\2\2\2\u0080x\3\2\2\2\u0080"+
 		"\u0081\3\2\2\2\u0081\u0082\3\2\2\2\u0082\u0085\7\13\2\2\u0083\u0084\7"+
 		"\16\2\2\u0084\u0086\5\2\2\2\u0085\u0083\3\2\2\2\u0085\u0086\3\2\2\2\u0086"+
 		"\u0096\3\2\2\2\u0087\u008b\7\7\2\2\u0088\u008a\5\n\6\2\u0089\u0088\3\2"+
@@ -1004,12 +1001,11 @@ public class SingeliParser extends Parser {
 		"\2\2\u008f\u0090\3\2\2\2\u0090\u0091\3\2\2\2\u0091\u0097\7\t\2\2\u0092"+
 		"\u0093\7\20\2\2\u0093\u0094\5\b\5\2\u0094\u0095\7\r\2\2\u0095\u0097\3"+
 		"\2\2\2\u0096\u0087\3\2\2\2\u0096\u0092\3\2\2\2\u0097\21\3\2\2\2\u0098"+
-		"\u0099\7\22\2\2\u0099\u009a\7\17\2\2\u009a\u009b\7\21\2\2\u009b\u009c"+
-		"\5\6\4\2\u009c\u009d\7\r\2\2\u009d\23\3\2\2\2\u009e\u00a1\5\20\t\2\u009f"+
-		"\u00a1\5\22\n\2\u00a0\u009e\3\2\2\2\u00a0\u009f\3\2\2\2\u00a1\u00a4\3"+
-		"\2\2\2\u00a2\u00a0\3\2\2\2\u00a2\u00a3\3\2\2\2\u00a3\25\3\2\2\2\u00a4"+
-		"\u00a2\3\2\2\2\27#\'/\64ADHPR[apu}\u0080\u0085\u008b\u008f\u0096\u00a0"+
-		"\u00a2";
+		"\u0099\7\22\2\2\u0099\u009a\7\17\2\2\u009a\u009b\5\6\4\2\u009b\u009c\7"+
+		"\r\2\2\u009c\23\3\2\2\2\u009d\u00a0\5\20\t\2\u009e\u00a0\5\22\n\2\u009f"+
+		"\u009d\3\2\2\2\u009f\u009e\3\2\2\2\u00a0\u00a3\3\2\2\2\u00a1\u009f\3\2"+
+		"\2\2\u00a1\u00a2\3\2\2\2\u00a2\25\3\2\2\2\u00a3\u00a1\3\2\2\2\27#\'\60"+
+		"\65ADHPR[apu}\u0080\u0085\u008b\u008f\u0096\u009f\u00a1";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
