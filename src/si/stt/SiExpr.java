@@ -5,6 +5,8 @@ import si.gen.SingeliParser.*;
 import si.types.*;
 import si.types.ct.*;
 
+import java.util.List;
+
 public class SiExpr {
   public static Type process(Sc sc, ExprContext e) {
     if (e instanceof VarExprContext) {
@@ -20,6 +22,18 @@ public class SiExpr {
       if (!l.equals(r)) throw new ParseError("Expected '+' to have args of equal types: got "+l+" and "+r, ec);
       if (!(l instanceof Int) && !(l instanceof VecType)) throw new ParseError("Didn't expect "+l+" as argument to '+'", ec);
       return l;
+    }
+    if (e instanceof CallExprContext) {
+      CallExprContext ec = (CallExprContext) e;
+      SiFn fn = sc.getFn(ec.NAME().getText());
+      SiFn.Derv derv = fn.derv(sc, ec.targExpr().texpr(), ec.NAME().getSymbol());
+      List<ExprContext> args = ec.expr();
+      if (args.size()!=derv.args.length) throw new ParseError("Incorrect argument count", ec);
+      for (int i = 0; i < args.size(); i++) {
+        Type arg = SiExpr.process(sc, args.get(i));
+        if (!arg.castableTo(derv.args[i])) throw new ParseError("Incorrect argument type: expected "+derv.args[i]+", got "+arg, args.get(i));
+      }
+      return derv.ret;
     }
     throw new ParseError("TODO "+e.getClass(), e);
   }

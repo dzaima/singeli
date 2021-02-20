@@ -22,21 +22,22 @@ public class SiProg {
       try {
         if (symbols.containsKey(symb)) throw new ParseError("Defining symbol "+symb+" twice", exp.SYMB());
         String fn = exp.NAME().getText();
-        Sc sc = new Sc();
+        Sc sc = new Sc(this);
         fn(fn).derv(sc, exp.targExpr().texpr(), exp.targExpr().getStart());
         symbols.put(symb, null);
       } catch (ParseError e) {
         if (lns==null) lns = s.split("\n");
-        System.err.println("In '"+symb+"': "+e.get(lns));
+        System.err.println("'"+symb+"': "+e.get(lns));
+        ok = false;
       } catch (Throwable t) {
-        System.err.println("In '"+symb+"': "+t.getMessage());
+        t.printStackTrace();
         ok = false;
       }
     }
     if (!ok) System.exit(1);
   }
   
-  private SiFn fn(String name) {
+  public SiFn fn(String name) {
     SiFn f = fns.get(name);
     if (f==null) throw new ParseError("Unknown fn "+name);
     return f;

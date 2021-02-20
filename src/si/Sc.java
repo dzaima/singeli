@@ -9,16 +9,23 @@ import java.util.HashMap;
 import static si.gen.SingeliParser.*;
 
 public class Sc {
+  public final SiProg prog;
   protected final HashMap<String, Def> defs;
   private final Sc p;
   
-  public Sc() {
+  public Sc(SiProg prog) {
     this.p = null;
+    this.prog = prog;
     defs = new HashMap<>(Int.defTypes);
   }
   protected Sc(Sc p) {
     this.p = p;
+    this.prog = p.prog;
     defs = new HashMap<>();
+  }
+  
+  public SiFn getFn(String name) {
+    return prog.fn(name);
   }
   
   public Def texpr(TexprContext te) {

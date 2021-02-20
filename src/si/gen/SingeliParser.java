@@ -661,6 +661,9 @@ public class SingeliParser extends Parser {
 
 	public static class FnContext extends ParserRuleContext {
 		public TerminalNode NAME() { return getToken(SingeliParser.NAME, 0); }
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
 		public List<TargContext> targ() {
 			return getRuleContexts(TargContext.class);
 		}
@@ -675,9 +678,6 @@ public class SingeliParser extends Parser {
 		}
 		public TypeContext type() {
 			return getRuleContext(TypeContext.class,0);
-		}
-		public ExprContext expr() {
-			return getRuleContext(ExprContext.class,0);
 		}
 		public List<SttContext> stt() {
 			return getRuleContexts(SttContext.class);
@@ -812,12 +812,10 @@ public class SingeliParser extends Parser {
 				break;
 			case T__13:
 				{
-				{
 				setState(144);
 				match(T__13);
 				setState(145);
 				expr(0);
-				}
 				}
 				break;
 			default:
