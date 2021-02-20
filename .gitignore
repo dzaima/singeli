@@ -1,0 +1,6 @@
+.idea/
+out/
+src/si/gen/Singeli.interp
+src/si/gen/Singeli.tokens
+src/si/gen/SingeliLexer.interp
+src/si/gen/SingeliLexer.tokens
