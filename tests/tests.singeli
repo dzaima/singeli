@@ -2,7 +2,6 @@ f{n}(a:[n]i32) : [2*n]i32 {
   x:i64 = 5;
 }
 
-
 g{T,n}(a:T) {
   x:T = n+a;
   x
@@ -48,3 +47,8 @@ wrongArgCount1() => addi32(5);
 
 wrongArgCount2() => addi32(5,6,7);
 'wrongArgCount2'=wrongArgCount2;
+
+f{T}(a: 2*T) : 2*T => a;
+'ok5'=f{u8};
+'ok6'=f{i32};
+'i128'=f{i64};

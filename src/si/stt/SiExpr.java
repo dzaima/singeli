@@ -35,7 +35,7 @@ public class SiExpr {
       }
       return derv.ret;
     }
-    throw new ParseError("TODO "+e.getClass(), e);
+    throw new ParseError("TODO SiExpr::process "+e.getClass(), e);
   }
   
   public static Const processConst(Sc sc, ExprContext e) {
@@ -56,6 +56,6 @@ public class SiExpr {
       MulExprContext ec = (MulExprContext) e;
       return processConst(sc, ec.expr(0)).mul(processConst(sc, ec.expr(1)));
     }
-    throw new ParseError("TODO "+e.getClass(), e);
+    throw new ParseError("TODO SiExpr::processConst "+e.getClass(), e);
   }
 }

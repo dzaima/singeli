@@ -19,6 +19,6 @@ public class SiStt {
       sc.addVar(varName, varType);
       return;
     }
-    throw new ParseError("TODO "+stt.getClass(), stt);
+    throw new ParseError("TODO SiStt::process "+stt.getClass(), stt);
   }
 }

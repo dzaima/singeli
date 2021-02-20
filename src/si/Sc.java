@@ -1,5 +1,6 @@
 package si;
 
+import si.gen.SingeliParser;
 import si.stt.SiExpr;
 import si.types.*;
 import si.types.ct.*;
@@ -51,7 +52,13 @@ public class Sc {
       if (!(v instanceof IntConst)) throw new ParseError("Expected vector element type to be a number, got ["+v+"]"+d, c);
       return new VecType(((IntConst) v).val, (Num) d);
     }
-    throw new ParseError("TODO "+tc.getClass(), tc);
+    if (tc instanceof MulContext) {
+      MulContext c = (MulContext) tc;
+      int mul = Integer.parseInt(c.INT().getText());
+      Type elType = typeM(c.type());
+      return elType.mul(mul, c.getStart());
+    }
+    throw new ParseError("TODO Sc::typeM "+tc.getClass(), tc);
   }
   public Type type(TypeContext tc) {
     Type t = typeM(tc);
