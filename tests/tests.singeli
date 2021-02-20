@@ -55,3 +55,12 @@ f{T}(a: 2*T) : 2*T => a;
 'ok7'    =f{[4]u8};
 'ok8'    =f{[4]i32};
 'i128Vec'=f{[4]i64};
+
+add{T}(a:T, b:T) => a+b;
+'ok_add_i32'  = add{i32};
+'ok_add_f32'  = add{f32};
+'ok_add_f64'  = add{f64};
+'ok_add_vi32' = add{[4]i32};
+'ok_add_vf32' = add{[4]f32};
+'ok_add_vf64' = add{[4]f64};
+'addPtrs' = add{*i32};

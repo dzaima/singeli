@@ -3,6 +3,7 @@ package si;
 import si.gen.SingeliParser;
 import si.stt.SiExpr;
 import si.types.*;
+import si.types.Float;
 import si.types.ct.*;
 
 import java.util.HashMap;
@@ -18,6 +19,8 @@ public class Sc {
     this.p = null;
     this.prog = prog;
     defs = new HashMap<>(Int.defTypes);
+    defs.put("f32", Float.f32);
+    defs.put("f64", Float.f64);
   }
   protected Sc(Sc p) {
     this.p = p;
@@ -38,7 +41,7 @@ public class Sc {
     }
     return SiExpr.processConst(this, te.expr());
   }
-  private Type typeM(TypeContext tc) {
+  private Type typeM(TypeContext tc) { // TODO make sure this properly returns null
     if (tc instanceof NameContext) {
       Def def = getDef(((NameContext) tc).NAME().getText());
       if (!(def instanceof Type)) return null;
@@ -56,7 +59,14 @@ public class Sc {
       MulContext c = (MulContext) tc;
       int mul = Integer.parseInt(c.INT().getText());
       Type elType = typeM(c.type());
+      if (elType==null) return null;
       return elType.mul(mul, c.getStart());
+    }
+    if (tc instanceof PtrContext) {
+      PtrContext c = (PtrContext) tc;
+      Type elType = typeM(c.type());
+      if (elType==null) return null;
+      return new PtrType(elType);
     }
     throw new ParseError("TODO Sc::typeM "+tc.getClass(), tc);
   }

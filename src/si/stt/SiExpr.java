@@ -20,7 +20,7 @@ public class SiExpr {
       Type l = process(sc, ec.expr(0));
       Type r = process(sc, ec.expr(1));
       if (!l.equals(r)) throw new ParseError("Expected '+' to have args of equal types: got "+l+" and "+r, ec);
-      if (!(l instanceof Int) && !(l instanceof VecType)) throw new ParseError("Didn't expect "+l+" as argument to '+'", ec);
+      if (!(l instanceof Num) && !(l instanceof VecType)) throw new ParseError("Didn't expect "+l+" as argument to '+'", ec);
       return l;
     }
     if (e instanceof CallExprContext) {

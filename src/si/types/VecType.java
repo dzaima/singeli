@@ -28,4 +28,8 @@ public final class VecType extends Type {
   public String toString() {
     return "["+sz+"]"+tp;
   }
+  
+  public int hashCode() {
+    return 31*sz + tp.hashCode() + 123456;
+  }
 }
