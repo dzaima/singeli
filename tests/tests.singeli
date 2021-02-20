@@ -49,6 +49,9 @@ wrongArgCount2() => addi32(5,6,7);
 'wrongArgCount2'=wrongArgCount2;
 
 f{T}(a: 2*T) : 2*T => a;
-'ok5'=f{u8};
-'ok6'=f{i32};
-'i128'=f{i64};
+'ok5'    =f{u8};
+'ok6'    =f{i32};
+'i128'   =f{i64};
+'ok7'    =f{[4]u8};
+'ok8'    =f{[4]i32};
+'i128Vec'=f{[4]i64};

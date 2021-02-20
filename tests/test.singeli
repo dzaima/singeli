@@ -3,3 +3,7 @@ f{T}(a: 2*T) : 2*T => a;
 'oi16' = f{i16};
 'oi32' = f{i32};
 'oi64' = f{i64}; // too wide
+  
+'ovi16' = f{[4]i16};
+'ovi32' = f{[4]i32};
+'ovi64' = f{[4]i64}; // too wide
