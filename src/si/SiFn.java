@@ -2,9 +2,9 @@ package si;
 
 import org.antlr.v4.runtime.Token;
 import si.stt.*;
-import si.types.Type;
+import si.types.*;
 
-import java.util.List;
+import java.util.*;
 
 import static si.gen.SingeliParser.*;
 
@@ -37,15 +37,24 @@ public class SiFn {
     }
   }
   
+  public Derv derv(Sc sc, List<TexprContext> exprs, Token callsite) {
+    List<Def> targTypes = new ArrayList<>(exprs.size());
+    if (exprs.size() != targNames.length) throw new ParseError("Incorrect targ count", callsite);
+    for (TexprContext e : exprs) targTypes.add(sc.texpr(e));
+    return dervRaw(sc.sub(), targTypes, callsite);
+  }
+  
   private boolean deriving;
-  public Derv derv(Sc psc, List<TexprContext> vals, Token callsite) {
+  private final HashMap<List<Def>, Derv> cache = new HashMap<>();
+  public Derv dervRaw(Sc.ChSc nsc, List<Def> vals, Token callsite) {
+    Derv prev = cache.get(vals);
+    if (prev!=null) return prev;
+    
     try {
       if (deriving) throw new ParseError("Recursive call", callsite);
       deriving = true;
-      if (vals.size() != targNames.length) throw new ParseError("Incorrect targ count", callsite);
-      Sc.ChSc nsc = psc.sub();
       
-      for (int i = 0; i < vals.size(); i++) nsc.addDef(targNames[i], psc.texpr(vals.get(i)));
+      for (int i = 0; i < vals.size(); i++) nsc.addDef(targNames[i], vals.get(i));
       
       TypeContext tc = ctx.type();
       Type retType = tc==null? null : nsc.type(tc);
@@ -67,7 +76,9 @@ public class SiFn {
       
       Type[] realArgTypes = new Type[argTypes.length];
       for (int i = 0; i < argTypes.length; i++) realArgTypes[i] = nsc.type(argTypes[i]);
-      return new Derv(this, retType, realArgTypes);
+      Derv d = new Derv(this, retType, realArgTypes);
+      cache.put(vals, d);
+      return d;
     } finally {
       deriving = false;
     }

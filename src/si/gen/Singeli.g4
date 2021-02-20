@@ -36,7 +36,7 @@ stt: expr ';'                      # exprStt
 
 targ: NAME;
 arg: NAME ':' type;
-fn: NAME ('{' targ (','targ)* '}')? '(' (arg (','arg)*)? ')' (':' type)? ('{' stt* expr? '}' | '=>' expr);
+fn: NAME ('{' targ (','targ)* '}')? '(' (arg (','arg)*)? ')' (':' type)? ('{' stt* expr? '}' | '=>' expr ';');
 export: SYMB '=' NAME targExpr ';';
 
 prog: (fn | export)*;
