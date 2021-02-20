@@ -1,7 +1,3 @@
-f{n}(a:[n]i32) : [2*n]i32 {
-  x:i64 = 5;
-}
-
 g{T,n}(a:T) {
   x:T = n+a;
   x
@@ -9,12 +5,12 @@ g{T,n}(a:T) {
 'ok1' = g{i32, 5};
 'ok2' = g{i32, 1*2 + 3*4};
 
-f{A,B}(a:A, b:B) : A {
+addSep{A,B}(a:A, b:B) : A {
   a+b
 }
-'ok3' = f{i32,i32};
-'i32Plusi64' = f{i32,i64};
-'wrongTargCount' = f{i32};
+'ok3' = addSep{i32,i32};
+'i32Plusi64' = addSep{i32,i64};
+'wrongTargCount' = addSep{i32};
 
 h1{T,n}(a:[n]T, b:[n]T) : [n]T => a + b;
 'ok4' = h1{i32,4};
@@ -48,7 +44,7 @@ wrongArgCount1() => addi32(5);
 wrongArgCount2() => addi32(5,6,7);
 'wrongArgCount2'=wrongArgCount2;
 
-f{T}(a: 2*T) : 2*T => a;
+f{T}(a: 2*T) : T*2 => a;
 'ok5'    =f{u8};
 'ok6'    =f{i32};
 'i128'   =f{i64};

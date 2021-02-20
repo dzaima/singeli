@@ -1,10 +1,9 @@
 package si;
 
-import si.gen.SingeliParser;
 import si.stt.SiExpr;
 import si.types.*;
 import si.types.Float;
-import si.types.ct.*;
+import si.types.ct.Const;
 
 import java.util.HashMap;
 
@@ -33,47 +32,14 @@ public class Sc {
   }
   
   public Def texpr(TexprContext te) {
-    TypeContext type = te.type();
-    if (type!=null) {
-      Type t = typeM(type);
-      if (t!=null) return t;
-      throw new ParseError("TODO fallback expr evaluation of type", te);
-    }
-    return SiExpr.processConst(this, te.expr());
+    ExprContext expr = te.expr();
+    if (expr!=null) return SiExpr.processDef(this, expr);
+    throw new ParseError("TODO callable texpr");
   }
-  private Type typeM(TypeContext tc) { // TODO make sure this properly returns null
-    if (tc instanceof NameContext) {
-      Def def = getDef(((NameContext) tc).NAME().getText());
-      if (!(def instanceof Type)) return null;
-      return (Type) def;
-    }
-    if (tc instanceof VecContext) {
-      VecContext c = (VecContext) tc;
-      Def d = getDef(c.NAME().getText());
-      if (!(d instanceof Num)) throw new ParseError("Expected vector element type to be a number, was "+d, c);
-      Const v = SiExpr.processConst(this, c.expr());
-      if (!(v instanceof IntConst)) throw new ParseError("Expected vector element type to be a number, got ["+v+"]"+d, c);
-      return new VecType(((IntConst) v).val, (Num) d);
-    }
-    if (tc instanceof MulContext) {
-      MulContext c = (MulContext) tc;
-      int mul = Integer.parseInt(c.INT().getText());
-      Type elType = typeM(c.type());
-      if (elType==null) return null;
-      return elType.mul(mul, c.getStart());
-    }
-    if (tc instanceof PtrContext) {
-      PtrContext c = (PtrContext) tc;
-      Type elType = typeM(c.type());
-      if (elType==null) return null;
-      return new PtrType(elType);
-    }
-    throw new ParseError("TODO Sc::typeM "+tc.getClass(), tc);
-  }
-  public Type type(TypeContext tc) {
-    Type t = typeM(tc);
-    if (t==null) throw new ParseError("Expected type, got constant value", tc);
-    return t;
+  public Type type(ExprContext e) {
+    Def d = SiExpr.processDef(this, e);
+    if (!(d instanceof Type)) throw new ParseError("Expected a type, got value", e);
+    return (Type) d;
   }
   
   public Def getDef(String n) {
@@ -91,7 +57,10 @@ public class Sc {
   
   public Type var(String name) {
     Def def = defs.get(name);
-    if (def!=null) if (def instanceof Const) return ((Const) def).type();
+    if (def!=null) {
+      if (def instanceof Const) return ((Const) def).type(); // TODO take tk info arg
+      return (Type) def;
+    }
     if (p==null) throw new ParseError("Unknown variable "+name);
     return p.var(name);
   }

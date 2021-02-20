@@ -26,6 +26,7 @@ public class SiProg {
         String fn = c.NAME().getText();
         fn(fn).derv(sc, c);
         symbols.put(symb, null);
+        System.out.println("'"+symb+"' done");
       } catch (ParseError e) {
         if (lns==null) lns = s.split("\n");
         System.err.println("'"+symb+"': "+e.get(lns));

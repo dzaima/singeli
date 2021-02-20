@@ -12,17 +12,12 @@ DEC: INT '.' [0-9]+
    | INT 
    ;
 
-type: NAME              # name
-    | '*' type          # ptr
-    | INT '*' type      # mul
-    | '$' NAME          # freg
-    | '[' expr ']' NAME # vec
-    ;
-
-texpr: type | expr | callable;
+texpr: expr | callable;
 callable: NAME ('{' texpr (','texpr)* '}')?;
 
 expr: NAME                                # varExpr
+    | '*' expr                            # ptrExpr
+    | '[' expr ']' NAME                   # vecExpr
     | '(' expr ')'                        # groupExpr
     | INT                                 # intExpr
     | callable '(' (expr (','expr)*)? ')' # callExpr
@@ -30,14 +25,14 @@ expr: NAME                                # varExpr
     | expr '+' expr                       # addExpr
     ;
 
-stt: expr ';'                      # exprStt
-   | NAME (':' type)? '=' expr ';' # nvarStt
+stt: expr ';'                          # exprStt
+   | NAME (':' t=expr)? '=' v=expr ';' # nvarStt
    ;
 
 
 targ: NAME;
-arg: NAME ':' type;
-fn: NAME ('{' targ (','targ)* '}')? '(' (arg (','arg)*)? ')' (':' type)? ('{' stt* expr? '}' | '=>' expr ';');
+arg: NAME ':' expr;
+fn: NAME ('{' targ (','targ)* '}')? '(' (arg (','arg)*)? ')' (':' retT=expr)? ('{' stt* retV=expr? '}' | '=>' retV=expr ';');
 export: SYMB '=' callable ';';
 
 prog: (fn | export)*;

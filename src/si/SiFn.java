@@ -14,7 +14,7 @@ public class SiFn {
   public final String[] targNames;
   
   public final String[] argNames;
-  public final TypeContext[] argTypes;
+  public final ExprContext[] argTypes;
   
   private final FnContext ctx;
   
@@ -29,11 +29,11 @@ public class SiFn {
     
     List<ArgContext> args = ctx.arg();
     argNames = new String[args.size()];
-    argTypes = new TypeContext[args.size()];
+    argTypes = new ExprContext[args.size()];
     for (int i = 0; i < args.size(); i++) {
       ArgContext arg = args.get(i);
       argNames[i] = arg.NAME().getText();
-      argTypes[i] = arg.type();
+      argTypes[i] = arg.expr();
     }
   }
   
@@ -56,17 +56,17 @@ public class SiFn {
       deriving = true;
       
       for (int i = 0; i < vals.size(); i++) nsc.addDef(targNames[i], vals.get(i));
-      
-      TypeContext tc = ctx.type();
+  
+      ExprContext tc = ctx.retT;
       Type retType = tc==null? null : nsc.type(tc);
       for (int i = 0; i < argNames.length; i++) {
-        TypeContext argType = argTypes[i];
+        ExprContext argType = argTypes[i];
         nsc.addVar(argNames[i], nsc.type(argType));
       }
       
       for (SttContext stt : ctx.stt()) SiStt.process(nsc, stt);
       
-      ExprContext retExpr = ctx.expr();
+      ExprContext retExpr = ctx.retV;
       if (retExpr==null) {
         if (retType==null) throw new ParseError("Function must either end with an expression or specify a result type", ctx);
       } else {

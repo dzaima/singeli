@@ -1,6 +1,5 @@
 package si.types;
 
-import org.antlr.v4.runtime.Token;
 import si.ParseError;
 
 public final class VecType extends Type {
@@ -19,8 +18,9 @@ public final class VecType extends Type {
     return sz==t.sz && tp.equals(t.tp);
   }
   
-  public Type mul(int mul, Token tk) {
-    Type ntp = tp.mul(mul, tk);
+  public Def mul(Def r) {
+    Def ntp = tp.mul(r);
+    if (!(ntp instanceof Num)) return super.mul(r);
     if (tp==ntp) return this;
     return new VecType(sz, tp);
   }

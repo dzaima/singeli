@@ -42,29 +42,46 @@ public class SiExpr {
       }
       return derv.ret;
     }
+    if (e instanceof VecExprContext || e instanceof PtrExprContext) throw new ParseError("Expected a value, got type", e);
     throw new ParseError("TODO SiExpr::process "+e.getClass(), e);
   }
   
-  public static Const processConst(Sc sc, ExprContext e) {
-    if (e instanceof GroupExprContext) return processConst(sc, ((GroupExprContext) e).expr());
+  public static Def processDef(Sc sc, ExprContext e) {
+    if (e instanceof GroupExprContext) return processDef(sc, ((GroupExprContext) e).expr());
+    if (e instanceof VarExprContext) return sc.getDef(((VarExprContext) e).NAME().getText());
     
-    if (e instanceof VarExprContext) {
-      Def d = sc.getDef(((VarExprContext) e).NAME().getText());
-      if (!(d instanceof Const)) throw new ParseError("Expected constant, got "+d, e);
-      return (Const) d;
-    }
     if (e instanceof IntExprContext) {
       String v = ((IntExprContext) e).INT().getText();
       return new IntConst(Long.parseLong(v), Int.i32);
     }
     if (e instanceof AddExprContext) {
       AddExprContext ec = (AddExprContext) e;
-      return processConst(sc, ec.expr(0)).add(processConst(sc, ec.expr(1)));
+      return processDef(sc, ec.expr(0)).add(processDef(sc, ec.expr(1)));
     }
     if (e instanceof MulExprContext) {
       MulExprContext ec = (MulExprContext) e;
-      return processConst(sc, ec.expr(0)).mul(processConst(sc, ec.expr(1)));
+      return processDef(sc, ec.expr(0)).mul(processDef(sc, ec.expr(1)));
     }
+    
+    // type-only
+    if (e instanceof VecExprContext) {
+      VecExprContext c = (VecExprContext) e;
+      Def d = sc.getDef(c.NAME().getText());
+      if (!(d instanceof Num)) throw new ParseError("Expected vector element type to be a number, was "+d, c);
+      Const v = processConst(sc, c.expr());
+      if (!(v instanceof IntConst)) throw new ParseError("Expected vector element type to be a number, got ["+v+"]"+d, c);
+      return new VecType(((IntConst) v).val, (Num) d);
+    }
+    if (e instanceof PtrExprContext) {
+      PtrExprContext c = (PtrExprContext) e;
+      return new PtrType(sc.type(c.expr()));
+    }
+    
     throw new ParseError("TODO SiExpr::processConst "+e.getClass(), e);
+  }
+  public static Const processConst(Sc sc, ExprContext e) {
+    Def d = processDef(sc, e);
+    if (!(d instanceof Const)) throw new ParseError("Expected a value, got type", e);
+    return (Const) d;
   }
 }

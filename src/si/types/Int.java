@@ -2,6 +2,7 @@ package si.types;
 
 import org.antlr.v4.runtime.Token;
 import si.ParseError;
+import si.types.ct.IntConst;
 
 import java.util.HashMap;
 
@@ -31,9 +32,11 @@ public final class Int extends Num {
   }
   public static final Int i32 = defTypes.get("i32");
   
-  public Type mul(int mul, Token tk) {
+  public Def mul(Def r) {
+    if (!(r instanceof IntConst && ((IntConst) r).type.w<=32)) return super.mul(r);
+    int mul = (int) ((IntConst) r).val;
     int nw = w*mul;
-    if (nw<8 | nw>64 | (nw&(nw-1))!=0) throw new ParseError("Cannot multiply "+this+" by "+mul, tk);
+    if (nw<8 | nw>64 | (nw&(nw-1))!=0) throw new ParseError("Cannot multiply "+this+" by "+mul); // TODO tk info
     int nwl = Integer.bitCount(nw-1);
     return types[signed?1:0][nwl-3];
   }

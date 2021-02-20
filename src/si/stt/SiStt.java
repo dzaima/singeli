@@ -12,10 +12,10 @@ public class SiStt {
     }
     if (stt instanceof NvarSttContext) {
       NvarSttContext c = (NvarSttContext) stt;
-      Type exprType = SiExpr.process(sc, c.expr());
-      Type varType = sc.type(c.type());
+      Type exprType = c.t==null? null : SiExpr.process(sc, c.t);
+      Type varType = SiExpr.process(sc, c.v);
       String varName = c.NAME().getText();
-      if (!exprType.castableTo(varType)) throw new ParseError("Cannot assign "+exprType+" to "+varType, stt);
+      if (exprType!=null && !exprType.castableTo(varType)) throw new ParseError("Cannot assign "+exprType+" to "+varType, stt);
       sc.addVar(varName, varType);
       return;
     }

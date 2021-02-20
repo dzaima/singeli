@@ -11,16 +11,17 @@ public class IntConst extends Const {
     this.type = type;
   }
   
-  public Const add(Const r) {
+  public Def add(Def r) {
     if (r instanceof IntConst && type==((IntConst) r).type) {
       return new IntConst((val + ((IntConst) r).val) & type.mask, type);
     }
     return super.add(r);
   }
-  public Const mul(Const r) {
+  public Def mul(Def r) {
     if (r instanceof IntConst && type==((IntConst) r).type) {
       return new IntConst((val*((IntConst) r).val) & type.mask, type);
     }
+    if (r instanceof Int || r instanceof VecType) return r.mul(this);
     return super.add(r);
   }
   
