@@ -19,10 +19,11 @@ type: NAME              # name
     | '[' expr ']' NAME # vec
     ;
 
-texpr: type | expr;
+texpr: type | expr | callable;
 callable: NAME ('{' texpr (','texpr)* '}')?;
 
 expr: NAME                                # varExpr
+    | '(' expr ')'                        # groupExpr
     | INT                                 # intExpr
     | callable '(' (expr (','expr)*)? ')' # callExpr
     | expr '*' expr                       # mulExpr

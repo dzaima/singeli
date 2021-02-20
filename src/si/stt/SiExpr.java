@@ -9,12 +9,11 @@ import java.util.List;
 
 public class SiExpr {
   public static Type process(Sc sc, ExprContext e) {
-    if (e instanceof VarExprContext) {
-      return sc.var(((VarExprContext) e).NAME().getText());
-    }
-    if (e instanceof IntExprContext) {
-      return Int.i32;
-    }
+    if (e instanceof VarExprContext) return sc.var(((VarExprContext) e).NAME().getText());
+    
+    if (e instanceof IntExprContext) return Int.i32;
+    if (e instanceof GroupExprContext) return process(sc, ((GroupExprContext) e).expr());
+    
     if (e instanceof AddExprContext) {
       AddExprContext ec = (AddExprContext) e;
       Type l = process(sc, ec.expr(0));
@@ -47,6 +46,8 @@ public class SiExpr {
   }
   
   public static Const processConst(Sc sc, ExprContext e) {
+    if (e instanceof GroupExprContext) return processConst(sc, ((GroupExprContext) e).expr());
+    
     if (e instanceof VarExprContext) {
       Def d = sc.getDef(((VarExprContext) e).NAME().getText());
       if (!(d instanceof Const)) throw new ParseError("Expected constant, got "+d, e);
