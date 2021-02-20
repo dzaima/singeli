@@ -26,7 +26,7 @@ public class Sc {
     if (type!=null) {
       Type t = typeM(type);
       if (t!=null) return t;
-      throw new Error("TODO fallback expr evaluation of type");
+      throw new ParseError("TODO fallback expr evaluation of type", te);
     }
     return SiExpr.processConst(this, te.expr());
   }
@@ -39,23 +39,23 @@ public class Sc {
     if (tc instanceof VecContext) {
       VecContext c = (VecContext) tc;
       Def d = getDef(c.NAME().getText());
-      if (!(d instanceof Num)) throw new Error("Expected vector element type to be a number");
+      if (!(d instanceof Num)) throw new ParseError("Expected vector element type to be a number, was "+d, c);
       Const v = SiExpr.processConst(this, c.expr());
-      if (!(v instanceof IntConst)) throw new Error("Expected vector element type to be a number, got ["+v+"]"+d);
+      if (!(v instanceof IntConst)) throw new ParseError("Expected vector element type to be a number, got ["+v+"]"+d, c);
       return new VecType(((IntConst) v).val, (Num) d);
     }
-    throw new Error("TODO "+tc.getClass());
+    throw new ParseError("TODO "+tc.getClass(), tc);
   }
   public Type type(TypeContext tc) {
     Type t = typeM(tc);
-    if (t==null) throw new Error("Expected type, got constant value");
+    if (t==null) throw new ParseError("Expected type, got constant value", tc);
     return t;
   }
   
   public Def getDef(String n) {
     Def def = defs.get(n);
     if (def==null) {
-      if (p==null) throw new Error("Unknown type/constant "+n);
+      if (p==null) throw new ParseError("Unknown type/constant "+n);
       return p.getDef(n);
     }
     return def;
@@ -68,7 +68,7 @@ public class Sc {
   public Type var(String name) {
     Def def = defs.get(name);
     if (def!=null) if (def instanceof Const) return ((Const) def).type();
-    if (p==null) throw new Error("Unknown variable "+name);
+    if (p==null) throw new ParseError("Unknown variable "+name);
     return p.var(name);
   }
   

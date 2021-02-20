@@ -1,5 +1,6 @@
 package si;
 
+import org.antlr.v4.runtime.Token;
 import si.stt.*;
 import si.types.Type;
 
@@ -36,8 +37,8 @@ public class SiFn {
     }
   }
   
-  public Type derv(Sc psc, List<TexprContext> vals) {
-    if (vals.size() != targNames.length) throw new Error("Incorrect targ count");
+  public Type derv(Sc psc, List<TexprContext> vals, Token callsite) {
+    if (vals.size() != targNames.length) throw new ParseError("Incorrect targ count", callsite);
     Sc.ChSc nsc = psc.sub();
     for (int i = 0; i < vals.size(); i++) {
       nsc.addDef(targNames[i], psc.texpr(vals.get(i)));
@@ -53,12 +54,12 @@ public class SiFn {
     }
     ExprContext retExpr = ctx.expr();
     if (retExpr==null) {
-      if (retType==null) throw new Error("Function must either end with an expression or specify a result type");
+      if (retType==null) throw new ParseError("Function must either end with an expression or specify a result type", ctx);
       return retType;
     }
     Type rt = SiExpr.process(nsc, retExpr);
     if (retType != null) {
-      if (!rt.castableTo(retType)) throw new Error("Incompatible return type: can't cast "+rt+" to "+retType);
+      if (!rt.castableTo(retType)) throw new ParseError("Incompatible return type: can't cast "+rt+" to "+retType, retExpr);
       return retType;
     }
     return rt;

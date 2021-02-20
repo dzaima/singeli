@@ -15,15 +15,19 @@ public class SiProg {
       fns.put(f.name, f);
     }
     HashMap<String, Void> symbols = new HashMap<>();
+    String[] lns = null;
     for (SingeliParser.ExportContext exp : prog.export()) {
       String symb = exp.SYMB().getText();
       symb = symb.substring(1, symb.length()-1);
-      if (symbols.containsKey(symb)) throw new Error("Defining symbol "+symb+" twice");
-      String fn = exp.NAME().getText();
-      Sc sc = new Sc();
       try {
-        fn(fn).derv(sc, exp.targExpr().texpr());
+        if (symbols.containsKey(symb)) throw new ParseError("Defining symbol "+symb+" twice", exp.SYMB());
+        String fn = exp.NAME().getText();
+        Sc sc = new Sc();
+        fn(fn).derv(sc, exp.targExpr().texpr(), exp.targExpr().getStart());
         symbols.put(symb, null);
+      } catch (ParseError e) {
+        if (lns==null) lns = s.split("\n");
+        System.err.println("In '"+symb+"': "+e.get(lns));
       } catch (Throwable t) {
         System.err.println("In '"+symb+"': "+t.getMessage());
         ok = false;
@@ -34,7 +38,7 @@ public class SiProg {
   
   private SiFn fn(String name) {
     SiFn f = fns.get(name);
-    if (f==null) throw new Error("Unknown fn "+name);
+    if (f==null) throw new ParseError("Unknown fn "+name);
     return f;
   }
 }

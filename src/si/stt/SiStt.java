@@ -1,6 +1,6 @@
 package si.stt;
 
-import si.Sc;
+import si.*;
 import si.gen.SingeliParser.*;
 import si.types.Type;
 
@@ -15,10 +15,10 @@ public class SiStt {
       Type exprType = SiExpr.process(sc, c.expr());
       Type varType = sc.type(c.type());
       String varName = c.NAME().getText();
-      if (!exprType.castableTo(varType)) throw new Error("Cannot assign "+exprType+" to "+varName+" for variable "+varName);
+      if (!exprType.castableTo(varType)) throw new ParseError("Cannot assign "+exprType+" to "+varType, stt);
       sc.addVar(varName, varType);
       return;
     }
-    throw new Error("TODO "+stt.getClass());
+    throw new ParseError("TODO "+stt.getClass(), stt);
   }
 }
