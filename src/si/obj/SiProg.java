@@ -1,6 +1,7 @@
-package si;
+package si.obj;
 
 import org.antlr.v4.runtime.*;
+import si.*;
 import si.gen.*;
 import si.types.CallableDef;
 

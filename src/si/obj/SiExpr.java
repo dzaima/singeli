@@ -1,4 +1,4 @@
-package si.stt;
+package si.obj;
 
 import si.*;
 import si.gen.SingeliParser.*;

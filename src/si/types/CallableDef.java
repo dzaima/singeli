@@ -2,6 +2,7 @@ package si.types;
 
 import si.*;
 import si.gen.SingeliParser;
+import si.obj.SiFn;
 
 public abstract class CallableDef extends Def {
   public abstract SiFn.Derv derv(Sc sc, SingeliParser.CallableContext c);

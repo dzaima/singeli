@@ -1,7 +1,7 @@
-package si;
+package si.obj;
 
 import org.antlr.v4.runtime.Token;
-import si.stt.*;
+import si.*;
 import si.types.*;
 
 import java.util.*;
