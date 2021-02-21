@@ -104,7 +104,7 @@ public class SiFn {
       nsc.code.b.append("beginFn ").append(id);
       
       ExprContext tc = ctx.retT;
-      Type retType = tc==null? null : nsc.type(tc);
+      nsc.code.ret = tc==null? null : nsc.type(tc);
       for (int i = 0; i < argNames.length; i++) {
         ExprContext argType = argTypes[i];
         Type t = nsc.type(argType);
@@ -119,6 +119,7 @@ public class SiFn {
       for (SttContext stt : ctx.stt()) SiStt.process(nsc, stt);
       
       ExprContext retExpr = ctx.retV;
+      Type retType = nsc.code.ret;
       if (retExpr==null) {
         if (retType==null) throw new ParseError("Function must either end with an expression or specify a result type", ctx);
       } else {
@@ -129,6 +130,7 @@ public class SiFn {
       }
       
       nsc.code.b.append("endFn\n");
+      if (SiProg.COMMENTS) nsc.code.b.append('\n');
       
       Type[] realArgTypes = new Type[argTypes.length];
       for (int i = 0; i < argTypes.length; i++) realArgTypes[i] = nsc.type(argTypes[i]);

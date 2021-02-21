@@ -1,4 +1,8 @@
-__add{T, S}(a: T, b:S) => a;
-__sub{T, S}(a: T, b:S) => a;
-__mul{T, S}(a: T, b:S) => a;
-__div{T, S}(a: T, b:S) => a;
+__add  {T, T}(a: T, b: T) => a;
+__sub  {T, T}(a: T, b: T) => a;
+__mul  {T, T}(a: T, b: T) => a;
+__div  {T, T}(a: T, b: T) => a;
+__cmpgt{T, T}(a: T, b: T) => a;
+__cmpge{T, T}(a: T, b: T) => a;
+__cmplt{T, T}(a: T, b: T) => a;
+__cmple{T, T}(a: T, b: T) => a;

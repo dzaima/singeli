@@ -12,7 +12,7 @@ import java.util.*;
 
 public class SiProg {
   public static final boolean COMMENTS = true;
-  public final ArrayList<SiFn> add, sub, mul, div;
+  public final ArrayList<SiFn> add, sub, mul, div, le, lt, ge, gt;
   public final SiArch arch;
   
   public SiProg(SiArch arch) {
@@ -24,6 +24,10 @@ public class SiProg {
     sub = fns.get("__sub");
     mul = fns.get("__mul");
     div = fns.get("__div");
+    le = fns.get("__cmple");
+    lt = fns.get("__cmplt");
+    ge = fns.get("__cmpge");
+    gt = fns.get("__cmpgt");
   }
   
   public final HashMap<String, ArrayList<SiFn>> fns = new HashMap<>();
@@ -53,6 +57,7 @@ public class SiProg {
         String fn = c.NAME().getText();
         SiFn.Derv d = SiFn.derv(fn(fn), sc, c);
         ir.append("export ").append(d.id).append(' ').append(symb).append('\n');
+        if (COMMENTS) ir.append('\n');
         symbols.put(symb, null);
         System.out.println("'"+symb+"' done");
       } catch (ParseError e) {

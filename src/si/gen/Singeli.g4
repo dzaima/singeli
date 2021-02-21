@@ -13,6 +13,8 @@ DEC: INT '.' [0-9]+
    | INT 
    ;
 
+REL: '<' | '>' | '<=' | '>=';
+
 texpr: expr | callable;
 callable: NAME ('{' texpr (','texpr)* '}')?;
 
@@ -27,12 +29,16 @@ expr: NAME                                # varExpr
     | callable '(' (expr (','expr)*)? ')' # callExpr
     | l=expr ref=('*'|'/') r=expr         # mulExpr
     | l=expr ref=('+'|'-') r=expr         # addExpr
+    | l=expr ref=REL       r=expr         # relExpr
     | 'emit' expr STR expr*               # emitExpr
     | e=expr '.' n=NAME                   # fldExpr
     ;
 
-stt: expr ';'                          # exprStt
-   | NAME (':' t=expr)? '=' v=expr ';' # nvarStt
+stt: expr ';'                               # exprStt
+   | NAME (':' t=expr)? '=' v=expr ';'      # nvarStt
+   | 'if' '('c=expr')' t=stt ('else'f=stt)? # ifStt
+   | '{' stt* '}'                           # blockStt
+   | 'return' e=expr ';'                    # retnStt
    ;
 
 

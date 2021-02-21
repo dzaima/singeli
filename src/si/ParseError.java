@@ -34,8 +34,8 @@ public class ParseError extends RuntimeException {
     String ln = lns[sl-1];
     if (sl!=el) ep = ln.length();
     StringBuilder b = new StringBuilder();
-    b.append(msg).append("\n");
-    b.append(ln).append("\n");
+    b.append(msg).append('\n');
+    b.append(ln).append('\n');
     for (int i = 0; i < sp; i++) b.append(' ');
     for (int i = sp; i < ep; i++) b.append('^');
     if (sl!=el) b.append("...");

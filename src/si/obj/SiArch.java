@@ -10,4 +10,8 @@ public class SiArch {
     this.maxWidth = maxWidth;
     this.defs = defs;
   }
+  
+  public static SiArch fake(int w) {
+    return new SiArch(w, new String[]{"arch/fake.singeli"});
+  }
 }

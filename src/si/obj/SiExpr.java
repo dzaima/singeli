@@ -46,6 +46,11 @@ public class SiExpr {
       MulExprContext ec = (MulExprContext) e;
       return builtin(sc, ec.l, ec.r, ec.ref, ec.ref.getText().equals("*")? sc.prog.mul : sc.prog.div);
     }
+    if (e instanceof RelExprContext) {
+      RelExprContext ec = (RelExprContext) e;
+      String t = ec.ref.getText();
+      return builtin(sc, ec.l, ec.r, ec.ref, t.equals(">")? sc.prog.gt : t.equals(">=")? sc.prog.ge : t.equals("<")? sc.prog.lt : t.equals("<=")? sc.prog.le : null);
+    }
     if (e instanceof CallExprContext) {
       CallExprContext ec = (CallExprContext) e;
       CallableContext c = ec.callable();
@@ -119,6 +124,15 @@ public class SiExpr {
       Def l = processDef(sc, ec.expr(0));
       Def r = processDef(sc, ec.expr(1));
       return ec.ref.getText().equals("*")? l.mul(r) : l.div(r);
+    }
+    if (e instanceof RelExprContext) {
+      RelExprContext ec = (RelExprContext) e;
+      Def l = processDef(sc, ec.expr(0));
+      Def r = processDef(sc, ec.expr(1));
+      switch (ec.ref.getText()) {
+        case ">": return l.gt(r); case ">=": return l.ge(r);
+        case "<": return r.gt(l); case "<=": return r.ge(l);
+      }
     }
     
     // type-only

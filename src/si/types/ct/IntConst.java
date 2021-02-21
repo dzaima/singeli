@@ -18,17 +18,24 @@ public class IntConst extends Const {
   }
   public Def sub(Def r) {
     if (match(r)) return new IntConst((val-((IntConst) r).val) & type.mask, type);
-    return super.add(r);
+    return super.sub(r);
   }
   public Def mul(Def r) {
     if (match(r)) return new IntConst((val*((IntConst) r).val) & type.mask, type);
     if (r instanceof Int || r instanceof VecType) return r.mul(this);
-    return super.add(r);
+    return super.mul(r);
   }
   public Def div(Def r) {
     if (match(r)) return new IntConst((val/((IntConst) r).val) & type.mask, type);
-    if (r instanceof Int || r instanceof VecType) return r.div(this);
-    return super.add(r);
+    return super.div(r);
+  }
+  public Def gt(Def r) {
+    if (r instanceof IntConst && type.signed && ((IntConst) r).type.signed) return BoolConst.bool(val >  ((IntConst) r).val);
+    return super.gt(r);
+  }
+  public Def ge(Def r) {
+    if (r instanceof IntConst && type.signed && ((IntConst) r).type.signed) return BoolConst.bool(val >= ((IntConst) r).val); // TODO unsigned
+    return super.ge(r);
   }
   private boolean match(Def r) {
     return r instanceof IntConst && type == ((IntConst) r).type;

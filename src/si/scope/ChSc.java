@@ -10,11 +10,13 @@ import java.util.HashMap;
 public class ChSc extends Sc {
   public static class Builder {
     public final StringBuilder b = new StringBuilder();
-    public int varId = 0;
+    public Type ret;
     
-    public String next() {
-      return "v" + varId++;
-    }
+    public int varId = 0;
+    public String next() { return "v" + varId++; }
+    
+    public int lblId = 0;
+    public String nextLbl() { return "l" + lblId++; }
   }
   public final Builder code;
   private final HashMap<String, SiExpr.ProcRes> vars = new HashMap<>();
