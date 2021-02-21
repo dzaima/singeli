@@ -60,6 +60,8 @@ add{T}(a:T, b:T) => a+b;
 'ok_add_vf32' = add{[4]f32};
 'ok_add_vf64' = add{[4]f64};
 'addPtrs' = add{*i32};
+inc(a: i32) => add{i32}(1, a);
+'ok_inc' = inc;
 
 three{T, fn}(a:T, b:T, c:T) => fn{T}(fn{T}(a, b), c);
 'ok_add3i32' = three{i32, add};

@@ -1,6 +1,8 @@
 package si.obj;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
 import si.*;
+import si.gen.SingeliParser;
 import si.gen.SingeliParser.*;
 import si.scope.*;
 import si.types.*;
@@ -69,6 +71,19 @@ public class SiExpr {
       sc.code.b.append(v).append(" = call ").append(derv.id).append(tmp).append('\n');
       return new ProcRes(derv.ret, v);
     }
+    if (e instanceof EmitExprContext) {
+      EmitExprContext ec = (EmitExprContext) e;
+      String v = sc.code.next();
+      List<ExprContext> exprs = ec.expr();
+      Type t = sc.type(exprs.get(0));
+      StringBuilder tmp = new StringBuilder();
+      for (int i = 1; i < exprs.size(); i++) {
+        ProcRes p = process(sc, ec.expr(i));
+        tmp.append(' ').append(p.id);
+      }
+      sc.code.b.append(v).append(" = emit ").append(str(ec.STR())).append(tmp).append('\n');
+      return new ProcRes(t, v);
+    }
     if (e instanceof VecExprContext || e instanceof PtrExprContext) throw new ParseError("Expected a value, got type", e);
     throw new ParseError("TODO SiExpr::process "+e.getClass(), e);
   }
@@ -104,11 +119,20 @@ public class SiExpr {
       return new PtrType(sc.type(c.expr()));
     }
     
+    if (e instanceof CallExprContext) throw new ParseError("Cannot call functions in a static context", e);
+    
     throw new ParseError("TODO SiExpr::processConst "+e.getClass(), e);
   }
   public static Const processConst(Sc sc, ExprContext e) {
     Def d = processDef(sc, e);
     if (!(d instanceof Const)) throw new ParseError("Expected a value, got "+d, e);
     return (Const) d;
+  }
+  
+  
+  
+  public static String str(TerminalNode STR) {
+    String s = STR.getText();
+    return s.substring(1, s.length()-1);
   }
 }
