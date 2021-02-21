@@ -21,6 +21,7 @@ expr: NAME                                # varExpr
     | 'true'                              # trueExpr
     | 'false'                             # falseExpr
     | '*' expr                            # ptrExpr
+    | '$' NAME                            # fvecExpr
     | '[' expr ']' NAME                   # vecExpr
     | '(' expr ')'                        # groupExpr
     | callable '(' (expr (','expr)*)? ')' # callExpr

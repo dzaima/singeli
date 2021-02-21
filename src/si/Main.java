@@ -8,7 +8,7 @@ public class Main {
   public static void main(String[] args) {
     try {
       SiProg p = new SiProg(SiArch.SSE);
-      p.addFile("tests/testSSE.singeli");
+      p.addFile("tests/test.singeli");
       p.finish();
     } catch (IOException e) {
       e.printStackTrace();

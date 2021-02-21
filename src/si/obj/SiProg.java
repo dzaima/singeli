@@ -13,8 +13,10 @@ import java.util.*;
 public class SiProg {
   public static final boolean COMMENTS = true;
   public final ArrayList<SiFn> add, sub, mul, div;
+  public final SiArch arch;
   
   public SiProg(SiArch arch) {
+    this.arch = arch;
     try {
       for (String f : arch.defs) addFile(f);
     } catch (IOException e) { throw new RuntimeException(e); }

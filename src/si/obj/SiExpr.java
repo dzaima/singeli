@@ -3,6 +3,7 @@ package si.obj;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import si.ParseError;
+import si.gen.SingeliParser;
 import si.gen.SingeliParser.*;
 import si.scope.*;
 import si.types.*;
@@ -79,7 +80,7 @@ public class SiExpr {
       throw new ParseError("Expected value, got "+f, c);
     }
     
-    if (e instanceof VecExprContext || e instanceof PtrExprContext) throw new ParseError("Expected a value, got type", e);
+    if (e instanceof VecExprContext || e instanceof PtrExprContext || e instanceof FvecExprContext) throw new ParseError("Expected a value, got type", e);
     throw new ParseError("TODO SiExpr::process "+e.getClass(), e);
   }
   
@@ -128,6 +129,12 @@ public class SiExpr {
       Const v = processConst(sc, c.expr());
       if (!(v instanceof IntConst)) throw new ParseError("Expected vector element type to be a number, got ["+v+"]"+d, c);
       return new VecType(((IntConst) v).val, (Num) d);
+    }
+    if (e instanceof FvecExprContext) {
+      FvecExprContext c = (FvecExprContext) e;
+      Def d = sc.getDef(c.NAME().getText());
+      if (!(d instanceof Num)) throw new ParseError("Expected vector element type to be a number, was "+d, c);
+      return new VecType(sc.prog.arch.maxWidth/((Num) d).w, (Num) d);
     }
     if (e instanceof PtrExprContext) {
       PtrExprContext c = (PtrExprContext) e;
