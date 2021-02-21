@@ -1,19 +1,24 @@
 package si.obj;
 
 import org.antlr.v4.runtime.*;
-import si.*;
+import si.ParseError;
 import si.gen.*;
 import si.scope.Sc;
 import si.types.CallableDef;
 
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.*;
 
 public class SiProg {
   public static final boolean COMMENTS = true;
   
-  
   public final HashMap<String, ArrayList<SiFn>> fns = new HashMap<>();
-  public SiProg(String s) {
+  
+  public void addFile(String path) throws IOException {
+    add(new String(Files.readAllBytes(Paths.get(path))));
+  }
+  public void add(String s) {
     boolean ok = true;
     SingeliParser.ProgContext prog = new SingeliParser(new CommonTokenStream(new SingeliLexer(CharStreams.fromString(s)))).prog();
     Sc sc = new Sc(this);
@@ -21,7 +26,7 @@ public class SiProg {
       SiFn f = new SiFn(this, fn);
       ArrayList<SiFn> alts = fns.computeIfAbsent(f.name, k -> new ArrayList<>());
       alts.add(f);
-      sc.addDef(f.name, new CallableDef.FnDef(f));
+      sc.setDef(f.name, new CallableDef.FnDef(alts, f.name));
     }
     
     HashMap<String, Void> symbols = new HashMap<>();

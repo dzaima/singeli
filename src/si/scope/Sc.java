@@ -47,7 +47,7 @@ public class Sc {
     throw new ParseError(name+" was not a function");
   }
   
-  public void addDef(String k, Def v) {
+  public void setDef(String k, Def v) {
     defs.put(k, v);
   }
   public Def getDef(String name) {

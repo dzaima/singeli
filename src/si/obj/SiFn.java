@@ -64,7 +64,7 @@ public class SiFn {
     if (prev!=null) return prev;
     
     ChSc nsc = new ChSc(sc);
-    for (int i = 0; i < targTypes.size(); i++) nsc.addDef(targNames[i], targTypes.get(i));
+    for (int i = 0; i < targTypes.size(); i++) nsc.setDef(targNames[i], targTypes.get(i));
     
     for (TreqContext r : treqs) if (SiReq.bad(nsc, r, targNames, targTypes)) return null;
     

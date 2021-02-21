@@ -1,0 +1,2 @@
+__add{T}(a: T, b:T) => a;
+__mul{T}(a: T, b:T) => a;

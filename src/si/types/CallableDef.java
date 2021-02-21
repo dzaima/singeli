@@ -5,19 +5,23 @@ import si.gen.SingeliParser;
 import si.obj.SiFn;
 import si.scope.Sc;
 
+import java.util.ArrayList;
+
 public abstract class CallableDef extends Def {
   public abstract SiFn.Derv derv(Sc sc, SingeliParser.CallableContext c);
   
   public static class FnDef extends CallableDef {
-    public final SiFn f;
-    public FnDef(SiFn f) {
+    public final ArrayList<SiFn> f;
+    public final String name;
+    public FnDef(ArrayList<SiFn> f, String name) {
       this.f = f;
+      this.name = name;
     }
     public SiFn.Derv derv(Sc sc, SingeliParser.CallableContext c) {
-      return f.derv(sc, c);
+      return SiFn.derv(f, sc, c);
     }
   
-    public String toString() { return f.name; }
+    public String toString() { return name; }
     public boolean equals(Object o) {
       if (!(o instanceof FnDef)) return false;
       return f==((FnDef) o).f;

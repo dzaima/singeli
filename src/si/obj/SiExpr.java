@@ -1,8 +1,7 @@
 package si.obj;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
-import si.*;
-import si.gen.SingeliParser;
+import si.ParseError;
 import si.gen.SingeliParser.*;
 import si.scope.*;
 import si.types.*;
