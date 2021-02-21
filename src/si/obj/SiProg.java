@@ -4,7 +4,7 @@ import org.antlr.v4.runtime.*;
 import si.ParseError;
 import si.gen.*;
 import si.scope.Sc;
-import si.types.CallableDef;
+import si.types.*;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -39,7 +39,7 @@ public class SiProg {
       SiFn f = new SiFn(this, fn);
       ArrayList<SiFn> alts = fns.computeIfAbsent(f.name, k -> new ArrayList<>());
       alts.add(f);
-      sc.setDef(f.name, new CallableDef.FnDef(alts, f.name));
+      sc.defs.put(f.name, new CallableDef.FnDef(alts, f.name));
     }
     
     HashMap<String, Void> symbols = new HashMap<>();

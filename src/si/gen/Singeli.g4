@@ -36,7 +36,7 @@ stt: expr ';'                          # exprStt
    ;
 
 
-targ: NAME;
+targ: name=NAME ('::' spec=expr)?;
 treq: l=expr '=' r=expr #eqReq
     | e=expr            #boolReq
     ;

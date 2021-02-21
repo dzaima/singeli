@@ -12,13 +12,15 @@ import static si.gen.SingeliParser.*;
 public class SiFn {
   public final SiProg p;
   public final String name;
+  
   public final String[] targNames;
+  public final ExprContext[] targSpec;
+  private final List<TreqContext> treqs;
   
   public final String[] argNames;
   public final ExprContext[] argTypes;
   
   private final FnContext ctx;
-  private final List<TreqContext> treqs;
   
   public SiFn(SiProg p, FnContext ctx) {
     this.p = p;
@@ -26,8 +28,13 @@ public class SiFn {
     this.name = ctx.NAME().getText();
     
     List<TargContext> targs = ctx.targ();
-    targNames = new String[targs.size()]; // TODO verify unique
-    for (int i = 0; i < targs.size(); i++) targNames[i] = targs.get(i).NAME().getText();
+    targNames = new String[targs.size()];
+    targSpec = new ExprContext[targs.size()];
+    for (int i = 0; i < targs.size(); i++) {
+      TargContext ta = targs.get(i);
+      targNames[i] = ta.name.getText();
+      targSpec[i] = ta.spec;
+    }
     
     List<ArgContext> args = ctx.arg();
     treqs = ctx.treq();
@@ -66,7 +73,12 @@ public class SiFn {
     if (prev!=null) return prev;
     
     ChSc nsc = new ChSc(sc);
-    for (int i = 0; i < targTypes.size(); i++) nsc.setDef(targNames[i], targTypes.get(i));
+    for (int i = 0; i < targTypes.size(); i++) {
+      Def currD = targTypes.get(i);
+      if (targSpec[i]!=null && !sc.type(targSpec[i]).equals(currD)) return null;
+      Def prevD = nsc.defs.put(targNames[i], currD);
+      if (prevD!=null && !prevD.equals(currD)) return null;
+    }
     
     for (TreqContext r : treqs) if (SiReq.bad(nsc, r)) return null;
     

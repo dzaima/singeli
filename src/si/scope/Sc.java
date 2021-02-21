@@ -3,7 +3,6 @@ package si.scope;
 import si.ParseError;
 import si.obj.*;
 import si.types.*;
-import si.types.ct.Const;
 import si.types.num.Float;
 import si.types.num.*;
 
@@ -13,7 +12,7 @@ import static si.gen.SingeliParser.*;
 
 public class Sc {
   public final SiProg prog;
-  protected final HashMap<String, Def> defs;
+  public final HashMap<String, Def> defs;
   protected final Sc p;
   
   public Sc(SiProg prog) {
@@ -48,9 +47,6 @@ public class Sc {
     throw new ParseError(name+" was not a function");
   }
   
-  public void setDef(String k, Def v) {
-    defs.put(k, v);
-  }
   public Def getDef(String name) {
     Def def = defs.get(name);
     if (def==null) {
