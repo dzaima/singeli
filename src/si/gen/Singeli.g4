@@ -42,4 +42,4 @@ export: SYMB '=' callable ';';
 prog: (fn | export)*;
 WS: [ \t\n\r] + -> skip;
      COMMENT: '/*' .*? '*/' -> channel(HIDDEN);
-LINE_COMMENT: '//' ~[\r\n]* -> channel(HIDDEN);
+LINE_COMMENT: ('//'|'#') ~[\r\n]* -> channel(HIDDEN);

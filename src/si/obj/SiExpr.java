@@ -3,7 +3,6 @@ package si.obj;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import si.*;
-import si.gen.SingeliParser;
 import si.gen.SingeliParser.*;
 import si.scope.*;
 import si.types.*;
@@ -78,8 +77,7 @@ public class SiExpr {
   private static ProcRes builtin(ChSc sc, ExprContext lc, ExprContext rc, Token ref, ArrayList<SiFn> fn) {
     ProcRes l = process(sc, lc);
     ProcRes r = process(sc, rc);
-    if (!l.t.equals(r.t)) throw new ParseError("Expected '+' to have args of equal types: got "+l+" and "+r, ref);
-    return emitCall(sc, SiFn.derv(fn, sc, Main.of(l.t), ref), l, r);
+    return emitCall(sc, SiFn.derv(fn, sc, Arrays.asList(l.t, r.t), ref), l, r);
   }
   
   private static ProcRes emitCall(ChSc sc, SiFn.Derv derv, ProcRes... args) {
