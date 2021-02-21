@@ -2,6 +2,7 @@ package si.obj;
 
 import org.antlr.v4.runtime.Token;
 import si.*;
+import si.scope.*;
 import si.types.*;
 
 import java.util.*;
@@ -42,27 +43,39 @@ public class SiFn {
     if (ctxs.size() != targNames.length) throw new ParseError("Incorrect targ count: expected "+targNames.length+", got "+ctxs.size(), c);
     List<Def> targTypes = new ArrayList<>(ctxs.size());
     for (TexprContext e : ctxs) targTypes.add(sc.texpr(e));
-    return dervRaw(sc.sub(), targTypes, c.NAME().getSymbol());
+    Derv prev = cache.get(targTypes);
+    if (prev!=null) return prev;
+  
+    ChSc nsc = new ChSc(sc);
+    Derv r = dervRaw(nsc, targTypes, c.NAME().getSymbol());
+    sc.prog.addFn(nsc.code.b.toString());
+    return r;
   }
   
   private boolean deriving;
   private final HashMap<List<Def>, Derv> cache = new HashMap<>();
-  public Derv dervRaw(Sc.ChSc nsc, List<Def> vals, Token callsite) {
-    Derv prev = cache.get(vals);
-    if (prev!=null) return prev;
-    
+  public Derv dervRaw(ChSc nsc, List<Def> vals, Token callsite) {
     try {
       if (deriving) throw new ParseError("Recursive call", callsite);
       deriving = true;
+      String id = nsc.prog.nextFn();
       
       for (int i = 0; i < vals.size(); i++) nsc.addDef(targNames[i], vals.get(i));
+      
+      nsc.code.b.append("beginFn ").append(id);
   
       ExprContext tc = ctx.retT;
       Type retType = tc==null? null : nsc.type(tc);
       for (int i = 0; i < argNames.length; i++) {
         ExprContext argType = argTypes[i];
-        nsc.addVar(argNames[i], nsc.type(argType));
+        Type t = nsc.type(argType);
+        nsc.addVar(argNames[i], new SiExpr.ProcRes(t, nsc.code.next()));
+        nsc.code.b.append(' ').append(t);
       }
+  
+      if (SiProg.COMMENTS) nsc.code.b.append(" // ").append(Derv.toString(this, vals));
+      
+      nsc.code.b.append('\n');
       
       for (SttContext stt : ctx.stt()) SiStt.process(nsc, stt);
       
@@ -70,14 +83,16 @@ public class SiFn {
       if (retExpr==null) {
         if (retType==null) throw new ParseError("Function must either end with an expression or specify a result type", ctx);
       } else {
-        Type rt = SiExpr.process(nsc, retExpr);
+        Type rt = SiExpr.process(nsc, retExpr).t;
         if (retType == null) retType = rt;
         else if (!rt.castableTo(retType)) throw new ParseError("Incompatible return type: can't cast " + rt + " to " + retType, retExpr);
       }
       
+      nsc.code.b.append("endFn\n");
+      
       Type[] realArgTypes = new Type[argTypes.length];
       for (int i = 0; i < argTypes.length; i++) realArgTypes[i] = nsc.type(argTypes[i]);
-      Derv d = new Derv(this, retType, realArgTypes);
+      Derv d = new Derv(this, retType, realArgTypes, vals, id);
       cache.put(vals, d);
       return d;
     } finally {
@@ -89,11 +104,32 @@ public class SiFn {
     public final SiFn base;
     public final Type ret;
     public final Type[] args;
+    public final List<Def> targs;
+    public final String id;
   
-    public Derv(SiFn base, Type ret, Type[] args) {
+    public Derv(SiFn base, Type ret, Type[] args, List<Def> targs, String id) {
       this.base = base;
       this.ret = ret;
       this.args = args;
+      this.targs = targs;
+      this.id = id;
+    }
+  
+    public String toString() {
+      return toString(base, targs);
+    }
+  
+    public static String toString(SiFn base, List<Def> targs) {
+      StringBuilder b = new StringBuilder();
+      b.append(base.name).append('{');
+      boolean first = true;
+      for (Def c : targs) {
+        if (first) first = false;
+        else b.append(',');
+        b.append(c);
+      }
+      b.append('}');
+      return b.toString();
     }
   }
 }

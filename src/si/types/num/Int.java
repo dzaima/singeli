@@ -25,8 +25,8 @@ public final class Int extends Num {
   public static final Int[][] types = new Int[2][4];
   static {
     for (int i = 3; i < 7; i++) {
-      Int u = new Int(i, false); defTypes.put(u.name, u); (types[0])[i-3] = u;
-      Int s = new Int(i, true ); defTypes.put(s.name, s); (types[1])[i-3] = s;
+      Int u = new Int(i, false); defTypes.put(u.name, u); types[0][i-3] = u;
+      Int s = new Int(i, true ); defTypes.put(s.name, s); types[1][i-3] = s;
     }
   }
   public static final Int i32 = defTypes.get("i32");

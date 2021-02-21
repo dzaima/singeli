@@ -1,7 +1,15 @@
-add{T}(a:T, b:T) => a+b;
+add{T}(a: T, b: T) => a+b;
+'add_i32' = add{i32};
+'add_v32' = add{[4]i32};
+
+inc(a: i32) {
+  add{i32}(1, a)
+}
+'inc' = inc;
+
 
 three{T, fn}(a:T, b:T, c:T) => fn{T}(fn{T}(a, b), c);
-'add3i32' = three{i32, add};
-  
+'ok_add3i32' = three{i32, add};
+
 threeB{T, fn}(a:T, b:T, c:T) => fn(fn(a, b), c);
-'add3i32B' = threeB{i32, add{i32}};
+'ok_add3i32B' = threeB{i32, add{i32}};

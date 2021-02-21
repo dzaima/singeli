@@ -3,6 +3,7 @@ package si.types;
 import si.*;
 import si.gen.SingeliParser;
 import si.obj.SiFn;
+import si.scope.Sc;
 
 public abstract class CallableDef extends Def {
   public abstract SiFn.Derv derv(Sc sc, SingeliParser.CallableContext c);
@@ -33,6 +34,8 @@ public abstract class CallableDef extends Def {
       if (c.texpr().size()!=0) throw new ParseError("deriving an already derived function", c);
       return d;
     }
+  
+    public String toString() { return SiFn.Derv.toString(d.base, d.targs); }
     public boolean equals(Object o) {
       if (!(o instanceof DervDef)) return false;
       return d==((DervDef) o).d;

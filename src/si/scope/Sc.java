@@ -1,5 +1,6 @@
-package si;
+package si.scope;
 
+import si.ParseError;
 import si.obj.*;
 import si.types.*;
 import si.types.ct.Const;
@@ -13,7 +14,7 @@ import static si.gen.SingeliParser.*;
 public class Sc {
   public final SiProg prog;
   protected final HashMap<String, Def> defs;
-  private final Sc p;
+  protected final Sc p;
   
   public Sc(SiProg prog) {
     this.p = null;
@@ -56,33 +57,5 @@ public class Sc {
       return p.getDef(name);
     }
     return def;
-  }
-  
-  public ChSc sub() {
-    return new ChSc(this);
-  }
-  
-  public Type var(String name) {
-    Def def = defs.get(name);
-    if (def!=null) {
-      if (def instanceof Const) return ((Const) def).type();
-      if (def instanceof Type) return (Type) def;
-      throw new ParseError("Unknown variable "+name);
-    }
-    if (p==null) throw new ParseError("Unknown variable "+name);
-    return p.var(name);
-  }
-  
-  public static class ChSc extends Sc {
-    public ChSc(Sc p) { super(p); }
-    HashMap<String, Type> vars = new HashMap<>();
-    public void addVar(String k, Type t) {
-      vars.put(k, t);
-    }
-    @Override public Type var(String name) {
-      Type v = vars.get(name);
-      if (v!=null) return v;
-      return super.var(name);
-    }
   }
 }
