@@ -9,4 +9,15 @@ public abstract class Def {
   public /*open*/ Def div(Def r) { throw new ParseError("Dividing "+this+" by "+r); }
   public abstract int hashCode();
   public abstract boolean equals(Object o);
+  
+  public /*open*/ Def fld(String name) {
+    return NoDef.D;
+  }
+  
+  public static class NoDef extends Def {
+    public static final NoDef D = new NoDef();
+    public String toString() { return "<unknown>"; }
+    public int hashCode() { return 0; }
+    public boolean equals(Object o) { return false; }
+  }
 }

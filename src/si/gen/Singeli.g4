@@ -27,6 +27,7 @@ expr: NAME                                # varExpr
     | l=expr ref=('*'|'/') r=expr         # mulExpr
     | l=expr ref=('+'|'-') r=expr         # addExpr
     | 'emit' expr STR expr*               # emitExpr
+    | e=expr '.' n=NAME                   # fldExpr
     ;
 
 stt: expr ';'                          # exprStt
@@ -36,6 +37,7 @@ stt: expr ';'                          # exprStt
 
 targ: NAME;
 treq: l=expr '=' r=expr #eqReq
+    | e=expr            #boolReq
     ;
 arg: NAME ':' expr;
 fn: NAME ('{' targ (','targ)* ('&' treq)* '}')? '(' (arg (','arg)*)? ')' (':' retT=expr)? ('{' stt* retV=expr? '}' | '=>' retV=expr ';');

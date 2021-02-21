@@ -2,7 +2,7 @@ package si.obj;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import si.*;
+import si.ParseError;
 import si.gen.SingeliParser.*;
 import si.scope.*;
 import si.types.*;
@@ -72,6 +72,13 @@ public class SiExpr {
       sc.code.b.append(v).append(" = emit ").append(str(ec.STR())).append(tmp).append('\n');
       return new ProcRes(t, v);
     }
+    if (e instanceof FldExprContext) {
+      FldExprContext c = (FldExprContext) e;
+      Def f = processDef(sc, c.e).fld(c.n.getText());
+      if (f instanceof Const) return makeConst((Const) f);
+      throw new ParseError("Expected value, got "+f, c);
+    }
+    
     if (e instanceof VecExprContext || e instanceof PtrExprContext) throw new ParseError("Expected a value, got type", e);
     throw new ParseError("TODO SiExpr::process "+e.getClass(), e);
   }
@@ -125,6 +132,10 @@ public class SiExpr {
     if (e instanceof PtrExprContext) {
       PtrExprContext c = (PtrExprContext) e;
       return new PtrType(sc.type(c.expr()));
+    }
+    if (e instanceof FldExprContext) {
+      FldExprContext c = (FldExprContext) e;
+      return processDef(sc, c.e).fld(c.n.getText());
     }
     
     if (e instanceof CallExprContext) throw new ParseError("Cannot call functions in a static context", e);

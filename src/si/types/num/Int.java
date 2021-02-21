@@ -2,19 +2,18 @@ package si.types.num;
 
 import si.ParseError;
 import si.types.Def;
-import si.types.ct.IntConst;
+import si.types.ct.*;
 
 import java.util.HashMap;
 
 public final class Int extends Num {
   public final String name;
-  public final int w; // width - 8,16,32,64
   public final int wl; // width log - 3,4,5,6
   public final boolean signed;
   public final long mask;
   
   public Int(int wl, boolean signed) {
-    this.w = 1<<wl;
+    super(1<<wl);
     this.wl = w;
     this.signed = signed;
     this.name = (signed? "i" : "u") + w;
@@ -38,6 +37,14 @@ public final class Int extends Num {
     if (nw<8 | nw>64 | (nw&(nw-1))!=0) throw new ParseError("Cannot multiply "+this+" by "+mul); // TODO tk info
     int nwl = Integer.bitCount(nw-1);
     return types[signed?1:0][nwl-3];
+  }
+  
+  public Def fld(String name) {
+    if (name.equals("width")) return new IntConst(w, i32);
+    if (name.equals("int")) return BoolConst.TRUE;
+    if (name.equals("signed")) return BoolConst.bool(signed);
+    if (name.equals("unsigned")) return BoolConst.bool(!signed);
+    return super.fld(name);
   }
   
   public String toString() { return name; }

@@ -1,7 +1,7 @@
 package si.obj;
 
 import org.antlr.v4.runtime.Token;
-import si.*;
+import si.ParseError;
 import si.scope.*;
 import si.types.*;
 
@@ -68,7 +68,7 @@ public class SiFn {
     ChSc nsc = new ChSc(sc);
     for (int i = 0; i < targTypes.size(); i++) nsc.setDef(targNames[i], targTypes.get(i));
     
-    for (TreqContext r : treqs) if (SiReq.bad(nsc, r, targNames, targTypes)) return null;
+    for (TreqContext r : treqs) if (SiReq.bad(nsc, r)) return null;
     
     Derv r = dervRaw(nsc, targTypes, tk);
     sc.prog.addFn(nsc.code.b.toString());

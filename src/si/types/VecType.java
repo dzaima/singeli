@@ -1,36 +1,44 @@
 package si.types;
 
 import si.ParseError;
-import si.types.num.Num;
+import si.types.ct.IntConst;
+import si.types.num.*;
 
 public final class VecType extends Type {
   public static final int MAX_SIZE = Integer.MAX_VALUE;
-  int sz;
-  Num tp;
-  public VecType(long sz, Num tp) {
-    if (sz>MAX_SIZE) throw new ParseError("Vector size "+sz+" too large");
-    this.sz = (int) sz;
+  public final int am;
+  public final Num tp;
+  public VecType(long am, Num tp) {
+    if (am >MAX_SIZE) throw new ParseError("Vector size "+ am +" too large");
+    this.am = (int) am;
     this.tp = tp;
   }
   
   public boolean equals(Object o) {
     if (!(o instanceof VecType)) return false;
     VecType t = (VecType) o;
-    return sz==t.sz && tp.equals(t.tp);
+    return am ==t.am && tp.equals(t.tp);
   }
   
   public Def mul(Def r) {
     Def ntp = tp.mul(r);
     if (!(ntp instanceof Num)) return super.mul(r);
     if (tp==ntp) return this;
-    return new VecType(sz, tp);
+    return new VecType(am, tp);
+  }
+  
+  public Def fld(String name) {
+    if (name.equals("width")) return tp.fld(name);
+    if (name.equals("size")) return new IntConst((long) tp.w*am, Int.i32);
+    if (name.equals("am")) return new IntConst(am, Int.i32);
+    return super.fld(name);
   }
   
   public String toString() {
-    return "["+sz+"]"+tp;
+    return "["+am+"]"+tp;
   }
   
   public int hashCode() {
-    return 31*sz + tp.hashCode() + 123456;
+    return 31*am + tp.hashCode() + 123456;
   }
 }

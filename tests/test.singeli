@@ -1,3 +1,15 @@
+f{T & T.int}() => true;
+f{T}() => false;
+'f1'=f{i32};
+'f2'=f{[4]i32};
+
+sz{T}() => T.size;
+'s_4i32'=sz{[8]u32};
+'s_4f32'=sz{[8]f32};
+'s_256u1'=sz{[4]u1};
+
+
+/*
 add{T}(a:T, b:T) => a+b;
 'add_i8' = add{i8};
 'add_i16' = add{i16};
@@ -33,3 +45,4 @@ div{T}(a:T, b:T) => a/b;
 'div_vi16' = div{[8]i16};
 'div_vi32' = div{[4]i32};
 'div_vi64' = div{[2]i64};
+*/
