@@ -17,10 +17,12 @@ texpr: expr | callable;
 callable: NAME ('{' texpr (','texpr)* '}')?;
 
 expr: NAME                                # varExpr
+    | INT                                 # intExpr
+    | 'true'                              # trueExpr
+    | 'false'                             # falseExpr
     | '*' expr                            # ptrExpr
     | '[' expr ']' NAME                   # vecExpr
     | '(' expr ')'                        # groupExpr
-    | INT                                 # intExpr
     | callable '(' (expr (','expr)*)? ')' # callExpr
     | l=expr ref=('*'|'/') r=expr         # mulExpr
     | l=expr ref=('+'|'-') r=expr         # addExpr

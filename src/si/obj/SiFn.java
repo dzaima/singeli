@@ -110,9 +110,10 @@ public class SiFn {
       if (retExpr==null) {
         if (retType==null) throw new ParseError("Function must either end with an expression or specify a result type", ctx);
       } else {
-        Type rt = SiExpr.process(nsc, retExpr).t;
-        if (retType == null) retType = rt;
-        else if (!rt.castableTo(retType)) throw new ParseError("Incompatible return type: can't cast " + rt + " to " + retType, retExpr);
+        SiExpr.ProcRes r = SiExpr.process(nsc, retExpr);
+        if (retType == null) retType = r.t;
+        else if (!r.t.castableTo(retType)) throw new ParseError("Incompatible return type: can't cast " + r.t + " to " + retType, retExpr);
+        nsc.code.b.append("ret ").append(r.id).append('\n');
       }
       
       nsc.code.b.append("endFn\n");

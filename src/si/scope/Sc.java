@@ -22,6 +22,7 @@ public class Sc {
     defs = new HashMap<>(Int.defTypes);
     defs.put("f32", Float.f32);
     defs.put("f64", Float.f64);
+    defs.put("u1", Bool.u1);
   }
   protected Sc(Sc p) {
     this.p = p;

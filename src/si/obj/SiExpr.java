@@ -12,9 +12,9 @@ import si.types.num.*;
 import java.util.*;
 
 public class SiExpr {
-  public static ProcRes makeConst(Const c) {
-    return new ProcRes(c.type(), "!"+c);
-  }
+  public static ProcRes TRUE = makeConst(BoolConst.TRUE);
+  public static ProcRes FALSE = makeConst(BoolConst.FALSE);
+  public static ProcRes makeConst(Const c) { return new ProcRes(c.type(), "!"+c); }
   
   public static class ProcRes {
     public final Type t;
@@ -28,6 +28,8 @@ public class SiExpr {
   public static ProcRes process(ChSc sc, ExprContext e) {
     if (e instanceof VarExprContext) return sc.var(((VarExprContext) e).NAME().getText());
     
+    if (e instanceof TrueExprContext) return TRUE;
+    if (e instanceof FalseExprContext) return FALSE;
     if (e instanceof IntExprContext) {
       String v = sc.code.next();
       sc.code.b.append(v).append(" = i32 ").append(((IntExprContext) e).INT().getText()).append('\n');
@@ -91,7 +93,9 @@ public class SiExpr {
   public static Def processDef(Sc sc, ExprContext e) {
     if (e instanceof GroupExprContext) return processDef(sc, ((GroupExprContext) e).expr());
     if (e instanceof VarExprContext) return sc.getDef(((VarExprContext) e).NAME().getText());
-    
+  
+    if (e instanceof TrueExprContext) return BoolConst.TRUE;
+    if (e instanceof FalseExprContext) return BoolConst.FALSE;
     if (e instanceof IntExprContext) {
       String v = ((IntExprContext) e).INT().getText();
       return new IntConst(Long.parseLong(v), Int.i32);
