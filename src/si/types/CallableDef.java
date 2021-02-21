@@ -39,7 +39,7 @@ public abstract class CallableDef extends Def {
       return d;
     }
   
-    public String toString() { return SiFn.Derv.toString(d.base, d.targs); }
+    public String toString() { return d.toString(); }
     public boolean equals(Object o) {
       if (!(o instanceof DervDef)) return false;
       return d==((DervDef) o).d;

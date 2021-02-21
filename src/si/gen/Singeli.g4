@@ -22,8 +22,8 @@ expr: NAME                                # varExpr
     | '(' expr ')'                        # groupExpr
     | INT                                 # intExpr
     | callable '(' (expr (','expr)*)? ')' # callExpr
-    | expr '*' expr                       # mulExpr
-    | expr '+' expr                       # addExpr
+    | expr ref='*' expr                   # mulExpr
+    | expr ref='+' expr                   # addExpr
     | 'emit' expr STR expr*               # emitExpr
     ;
 

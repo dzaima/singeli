@@ -1,3 +1,6 @@
 add{T}(a:T, b:T) => a+b;
 'add_i32' = add{i32};
 'add_i64' = add{i64};
+mul{T}(a:T, b:T) => a*b;
+'mul_i32' = mul{i32};
+'mul_i64' = mul{i64};

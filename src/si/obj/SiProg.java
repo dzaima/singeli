@@ -12,14 +12,23 @@ import java.util.*;
 
 public class SiProg {
   public static final boolean COMMENTS = true;
+  public final ArrayList<SiFn> add, mul;
+  
+  public SiProg(String archPath) {
+    try {
+      addFile(archPath);
+    } catch (IOException e) { throw new RuntimeException(e); }
+    add = fns.get("__add");
+    mul = fns.get("__mul");
+  }
   
   public final HashMap<String, ArrayList<SiFn>> fns = new HashMap<>();
   
   public void addFile(String path) throws IOException {
     add(new String(Files.readAllBytes(Paths.get(path))));
   }
+  private boolean ok = true;
   public void add(String s) {
-    boolean ok = true;
     SingeliParser.ProgContext prog = new SingeliParser(new CommonTokenStream(new SingeliLexer(CharStreams.fromString(s)))).prog();
     Sc sc = new Sc(this);
     for (SingeliParser.FnContext fn : prog.fn()) {
@@ -51,6 +60,9 @@ public class SiProg {
         ok = false;
       }
     }
+  }
+  
+  public void finish() {
     System.out.println("\nresult:");
     System.out.println(ir.toString());
     if (!ok) System.exit(1);

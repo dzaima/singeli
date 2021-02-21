@@ -1,14 +1,14 @@
 package si.obj;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
-import si.ParseError;
+import si.*;
 import si.gen.SingeliParser.*;
 import si.scope.*;
 import si.types.*;
 import si.types.ct.*;
 import si.types.num.*;
 
-import java.util.List;
+import java.util.*;
 
 public class SiExpr {
   public static ProcRes makeConst(ChSc sc, Const c) {
@@ -38,21 +38,15 @@ public class SiExpr {
       AddExprContext ec = (AddExprContext) e;
       ProcRes l = process(sc, ec.expr(0));
       ProcRes r = process(sc, ec.expr(1));
-      if (!l.t.equals(r.t)) throw new ParseError("Expected '+' to have args of equal types: got "+l+" and "+r, ec);
-      if (!(l.t instanceof Num) && !(l.t instanceof VecType)) throw new ParseError("Didn't expect "+l+" as argument to '+'", ec);
-      String v = sc.code.next();
-      sc.code.b.append(v).append(" = add ").append(l.t).append(' ').append(l.id).append(' ').append(r.id).append('\n');
-      return new ProcRes(l.t, v);
+      if (!l.t.equals(r.t)) throw new ParseError("Expected '+' to have args of equal types: got "+l+" and "+r, ec.ref);
+      return emitCall(sc, SiFn.derv(sc.prog.add, sc, Main.of(l.t), ec.ref), l, r);
     }
     if (e instanceof MulExprContext) {
       MulExprContext ec = (MulExprContext) e;
       ProcRes l = process(sc, ec.expr(0));
       ProcRes r = process(sc, ec.expr(1));
-      if (!l.t.equals(r.t)) throw new ParseError("Expected '*' to have args of equal types: got "+l+" and "+r, ec);
-      if (!(l.t instanceof Num) && !(l.t instanceof VecType)) throw new ParseError("Didn't expect "+l+" as argument to '*'", ec);
-      String v = sc.code.next();
-      sc.code.b.append(v).append(" = mul ").append(l.t).append(' ').append(l.id).append(' ').append(r.id).append('\n');
-      return new ProcRes(l.t, v);
+      if (!l.t.equals(r.t)) throw new ParseError("Expected '*' to have args of equal types: got "+l+" and "+r, ec.ref);
+      return emitCall(sc, SiFn.derv(sc.prog.mul, sc, Main.of(l.t), ec.ref), l, r);
     }
     if (e instanceof CallExprContext) {
       CallExprContext ec = (CallExprContext) e;
@@ -60,15 +54,13 @@ public class SiExpr {
       SiFn.Derv derv = sc.getFn(c.NAME().getText()).derv(sc, c);
       List<ExprContext> args = ec.expr();
       if (args.size()!=derv.args.length) throw new ParseError("Incorrect argument count", ec);
-      String v = sc.code.next();
-      StringBuilder tmp = new StringBuilder();
+      ProcRes[] pargs = new ProcRes[args.size()];
       for (int i = 0; i < args.size(); i++) {
         ProcRes arg = SiExpr.process(sc, args.get(i));
-        if (!arg.t.castableTo(derv.args[i])) throw new ParseError("Incorrect argument type: expected "+derv.args[i]+", got "+arg, args.get(i));
-        tmp.append(' ').append(arg.id);
+        if (!arg.t.castableTo(derv.args[i])) throw new ParseError("Incorrect argument type: expected "+ derv.args[i]+", got "+arg, args.get(i));
+        pargs[i] = arg;
       }
-      sc.code.b.append(v).append(" = call ").append(derv.id).append(tmp).append('\n');
-      return new ProcRes(derv.ret, v);
+      return emitCall(sc, derv, pargs);
     }
     if (e instanceof EmitExprContext) {
       EmitExprContext ec = (EmitExprContext) e;
@@ -85,6 +77,14 @@ public class SiExpr {
     }
     if (e instanceof VecExprContext || e instanceof PtrExprContext) throw new ParseError("Expected a value, got type", e);
     throw new ParseError("TODO SiExpr::process "+e.getClass(), e);
+  }
+  
+  private static ProcRes emitCall(ChSc sc, SiFn.Derv derv, ProcRes... args) {
+    String v = sc.code.next();
+    StringBuilder tmp = new StringBuilder();
+    for (ProcRes arg : args) tmp.append(' ').append(arg.id);
+    sc.code.b.append(v).append(" = call ").append(derv.id).append(tmp).append('\n');
+    return new ProcRes(derv.ret, v);
   }
   
   public static Def processDef(Sc sc, ExprContext e) {

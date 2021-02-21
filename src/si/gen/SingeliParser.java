@@ -248,6 +248,7 @@ public class SingeliParser extends Parser {
 		public VecExprContext(ExprContext ctx) { copyFrom(ctx); }
 	}
 	public static class AddExprContext extends ExprContext {
+		public Token ref;
 		public List<ExprContext> expr() {
 			return getRuleContexts(ExprContext.class);
 		}
@@ -267,6 +268,7 @@ public class SingeliParser extends Parser {
 		public EmitExprContext(ExprContext ctx) { copyFrom(ctx); }
 	}
 	public static class MulExprContext extends ExprContext {
+		public Token ref;
 		public List<ExprContext> expr() {
 			return getRuleContexts(ExprContext.class);
 		}
@@ -453,7 +455,7 @@ public class SingeliParser extends Parser {
 						setState(77);
 						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
 						setState(78);
-						match(T__3);
+						((MulExprContext)_localctx).ref = match(T__3);
 						setState(79);
 						expr(4);
 						}
@@ -465,7 +467,7 @@ public class SingeliParser extends Parser {
 						setState(80);
 						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
 						setState(81);
-						match(T__8);
+						((AddExprContext)_localctx).ref = match(T__8);
 						setState(82);
 						expr(3);
 						}

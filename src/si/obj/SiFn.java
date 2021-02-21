@@ -41,25 +41,27 @@ public class SiFn {
   }
   
   public static Derv derv(ArrayList<SiFn> fns, Sc sc, CallableContext c) {
+    return derv(fns, sc, defs(sc, c.texpr()), c.NAME().getSymbol());
+  }
+  
+  public static Derv derv(ArrayList<SiFn> fns, Sc sc, List<Def> targTypes, Token tk) {
     for (SiFn f : fns) {
-      Derv d = f.derv(sc, c);
+      if (f.targNames.length!= targTypes.size()) continue;
+      Derv d = f.derv(sc, targTypes, tk);
       if (d!=null) return d;
     }
     if (fns.size()==1) {
       SiFn f = fns.get(0);
       int exp = f.targNames.length;
-      int got = c.texpr().size();
-      if (exp!=got) throw new ParseError("Incorrect targ count: expected "+exp+", got "+ got, c);
-      throw new ParseError("Conditions not satisfied", c);
+      int got = targTypes.size();
+      if (exp!=got) throw new ParseError("Incorrect targ count: expected "+exp+", got "+ got, tk);
+      throw new ParseError("Conditions not satisfied in "+Derv.toString(fns.get(0).name, targTypes), tk);
     }
-    throw new ParseError("No matching function found", c);
+    if (fns.size()==0) throw new ParseError("what", tk);
+    throw new ParseError("No matching function found for "+Derv.toString(fns.get(0).name, targTypes), tk);
   }
   
-  public Derv derv(Sc sc, CallableContext c) {
-    List<TexprContext> ctxs = c.texpr();
-    if (ctxs.size() != targNames.length) return null;
-    List<Def> targTypes = new ArrayList<>(ctxs.size());
-    for (TexprContext e : ctxs) targTypes.add(sc.texpr(e));
+  private Derv derv(Sc sc, List<Def> targTypes, Token tk) {
     Derv prev = cache.get(targTypes);
     if (prev!=null) return prev;
     
@@ -68,9 +70,15 @@ public class SiFn {
     
     for (TreqContext r : treqs) if (SiReq.bad(nsc, r, targNames, targTypes)) return null;
     
-    Derv r = dervRaw(nsc, targTypes, c.NAME().getSymbol());
+    Derv r = dervRaw(nsc, targTypes, tk);
     sc.prog.addFn(nsc.code.b.toString());
     return r;
+  }
+  
+  private static List<Def> defs(Sc sc, List<TexprContext> ctxs) {
+    List<Def> targTypes = new ArrayList<>(ctxs.size());
+    for (TexprContext e : ctxs) targTypes.add(sc.texpr(e));
+    return targTypes;
   }
   
   private boolean deriving;
@@ -92,7 +100,7 @@ public class SiFn {
         nsc.code.b.append(' ').append(t);
       }
       
-      if (SiProg.COMMENTS) nsc.code.b.append(" // ").append(Derv.toString(this, vals));
+      if (SiProg.COMMENTS) nsc.code.b.append(" // ").append(Derv.toString(name, vals));
       
       nsc.code.b.append('\n');
       
@@ -135,12 +143,12 @@ public class SiFn {
     }
   
     public String toString() {
-      return toString(base, targs);
+      return toString(base.name, targs);
     }
   
-    public static String toString(SiFn base, List<Def> targs) {
+    public static String toString(String name, List<Def> targs) {
       StringBuilder b = new StringBuilder();
-      b.append(base.name).append('{');
+      b.append(name).append('{');
       boolean first = true;
       for (Def c : targs) {
         if (first) first = false;
