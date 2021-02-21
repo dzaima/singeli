@@ -14,9 +14,9 @@ public class SiProg {
   public static final boolean COMMENTS = true;
   public final ArrayList<SiFn> add, sub, mul, div;
   
-  public SiProg(String archPath) {
+  public SiProg(SiArch arch) {
     try {
-      addFile(archPath);
+      for (String f : arch.defs) addFile(f);
     } catch (IOException e) { throw new RuntimeException(e); }
     add = fns.get("__add");
     sub = fns.get("__sub");
