@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+rm -f si.jar
+rm -rf classes
+mkdir -p classes
+javac -classpath 'lib/*' -Xmaxerrs 1000 -d classes $(find src -name '*.java')
+cd classes
+jar cvfe si.jar si.Main * > /dev/null
+mv si.jar ../si.jar
+cd ..
