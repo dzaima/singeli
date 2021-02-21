@@ -3,7 +3,6 @@ package si.obj;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import si.ParseError;
-import si.gen.SingeliParser;
 import si.gen.SingeliParser.*;
 import si.scope.*;
 import si.types.*;
@@ -34,7 +33,7 @@ public class SiExpr {
     if (e instanceof IntExprContext) {
       String v = sc.code.next();
       sc.code.b.append(v).append(" = i32 ").append(((IntExprContext) e).INT().getText()).append('\n');
-      return new ProcRes(Int.i32, v);
+      return new ProcRes(IntType.i32, v);
     }
     if (e instanceof GroupExprContext) return process(sc, ((GroupExprContext) e).expr());
     
@@ -111,7 +110,7 @@ public class SiExpr {
     if (e instanceof FalseExprContext) return BoolConst.FALSE;
     if (e instanceof IntExprContext) {
       String v = ((IntExprContext) e).INT().getText();
-      return new IntConst(Long.parseLong(v), Int.i32);
+      return new IntConst(Long.parseLong(v), IntType.i32);
     }
     if (e instanceof AddExprContext) {
       AddExprContext ec = (AddExprContext) e;
@@ -139,16 +138,16 @@ public class SiExpr {
     if (e instanceof VecExprContext) {
       VecExprContext c = (VecExprContext) e;
       Def d = sc.getDef(c.NAME().getText());
-      if (!(d instanceof Num)) throw new ParseError("Expected vector element type to be a number, was "+d, c);
+      if (!(d instanceof NumType)) throw new ParseError("Expected vector element type to be a number, was "+d, c);
       Const v = processConst(sc, c.expr());
       if (!(v instanceof IntConst)) throw new ParseError("Expected vector element type to be a number, got ["+v+"]"+d, c);
-      return new VecType(((IntConst) v).val, (Num) d);
+      return new VecType(((IntConst) v).val, (NumType) d);
     }
     if (e instanceof FvecExprContext) {
       FvecExprContext c = (FvecExprContext) e;
       Def d = sc.getDef(c.NAME().getText());
-      if (!(d instanceof Num)) throw new ParseError("Expected vector element type to be a number, was "+d, c);
-      return new VecType(sc.prog.arch.maxWidth/((Num) d).w, (Num) d);
+      if (!(d instanceof NumType)) throw new ParseError("Expected vector element type to be a number, was "+d, c);
+      return new VecType(sc.prog.arch.maxWidth/((NumType) d).w, (NumType) d);
     }
     if (e instanceof PtrExprContext) {
       PtrExprContext c = (PtrExprContext) e;

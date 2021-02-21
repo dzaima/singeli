@@ -1,13 +1,13 @@
 package si.types.ct;
 
 import si.types.*;
-import si.types.num.Int;
+import si.types.num.IntType;
 
 public class IntConst extends Const {
   public long val;
-  public Int type;
+  public IntType type;
   
-  public IntConst(long val, Int type) {
+  public IntConst(long val, IntType type) {
     this.val = val;
     this.type = type;
   }
@@ -22,7 +22,7 @@ public class IntConst extends Const {
   }
   public Def mul(Def r) {
     if (match(r)) return new IntConst((val*((IntConst) r).val) & type.mask, type);
-    if (r instanceof Int || r instanceof VecType) return r.mul(this);
+    if (r instanceof IntType || r instanceof VecType) return r.mul(this);
     return super.mul(r);
   }
   public Def div(Def r) {

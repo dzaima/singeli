@@ -1,8 +1,8 @@
 package si.types;
 
-import si.types.num.Num;
+import si.types.num.NumType;
 
-public class Bool extends Num {
+public class Bool extends NumType {
   public static final Bool u1 = new Bool();
   private Bool() { super(1); }
   

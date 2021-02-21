@@ -6,13 +6,13 @@ import si.types.ct.*;
 
 import java.util.HashMap;
 
-public final class Int extends Num {
+public final class IntType extends NumType {
   public final String name;
   public final int wl; // width log - 3,4,5,6
   public final boolean signed;
   public final long mask;
   
-  public Int(int wl, boolean signed) {
+  public IntType(int wl, boolean signed) {
     super(1<<wl);
     this.wl = w;
     this.signed = signed;
@@ -20,15 +20,15 @@ public final class Int extends Num {
     mask = w==64? -1L : (1L<<w)-1;
   }
   
-  public static final HashMap<String, Int> defTypes = new HashMap<>();
-  public static final Int[][] types = new Int[2][4];
+  public static final HashMap<String, IntType> defTypes = new HashMap<>();
+  public static final IntType[][] types = new IntType[2][4];
   static {
     for (int i = 3; i < 7; i++) {
-      Int u = new Int(i, false); defTypes.put(u.name, u); types[0][i-3] = u;
-      Int s = new Int(i, true ); defTypes.put(s.name, s); types[1][i-3] = s;
+      IntType u = new IntType(i, false); defTypes.put(u.name, u); types[0][i-3] = u;
+      IntType s = new IntType(i, true ); defTypes.put(s.name, s); types[1][i-3] = s;
     }
   }
-  public static final Int i32 = defTypes.get("i32");
+  public static final IntType i32 = defTypes.get("i32");
   
   public Def mul(Def r) {
     if (!(r instanceof IntConst && ((IntConst) r).type.w<=32)) return super.mul(r);

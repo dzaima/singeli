@@ -2,7 +2,7 @@ package si.types.num;
 
 import si.types.Type;
 
-public abstract class Num extends Type {
+public abstract class NumType extends Type {
   public final int w; // size in bits
-  public Num(int w) { this.w = w; }
+  public NumType(int w) { this.w = w; }
 }

@@ -3,7 +3,7 @@ package si.scope;
 import si.ParseError;
 import si.obj.*;
 import si.types.*;
-import si.types.num.Float;
+import si.types.num.FloatType;
 import si.types.num.*;
 
 import java.util.HashMap;
@@ -18,9 +18,9 @@ public class Sc {
   public Sc(SiProg prog) {
     this.p = null;
     this.prog = prog;
-    defs = new HashMap<>(Int.defTypes);
-    defs.put("f32", Float.f32);
-    defs.put("f64", Float.f64);
+    defs = new HashMap<>(IntType.defTypes);
+    defs.put("f32", FloatType.f32);
+    defs.put("f64", FloatType.f64);
     defs.put("u1", Bool.u1);
   }
   protected Sc(Sc p) {
