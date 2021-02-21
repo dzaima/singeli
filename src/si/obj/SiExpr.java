@@ -12,7 +12,7 @@ import si.types.num.*;
 import java.util.*;
 
 public class SiExpr {
-  public static ProcRes makeConst(ChSc sc, Const c) {
+  public static ProcRes makeConst(Const c) {
     return new ProcRes(c.type(), "!"+c);
   }
   

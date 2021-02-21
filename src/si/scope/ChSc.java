@@ -37,15 +37,12 @@ public class ChSc extends Sc {
   public SiExpr.ProcRes var(String name) {
     SiExpr.ProcRes v = vars.get(name);
     if (v!=null) return v;
-    Def def = defs.get(name);
-    if (def!=null) {
-      if (def instanceof Const) return SiExpr.makeConst(this, (Const) def);
-      // if (def instanceof Type) return (Type) def; TODO why was this here
-      throw new ParseError("Unknown variable "+name);
-    }
+    
+    Def d = defs.get(name);
+    if (d!=null) if (d instanceof Const) return SiExpr.makeConst((Const) d);
     if (p instanceof ChSc) return ((ChSc) p).var(name);
-    Def d = p.getDef(name);
-    if (d instanceof Const) return SiExpr.makeConst(this, (Const) d);
+    d = p.getDef(name);
+    if (d instanceof Const) return SiExpr.makeConst((Const) d);
     throw new ParseError("Unknown variable "+name);
   }
 }
