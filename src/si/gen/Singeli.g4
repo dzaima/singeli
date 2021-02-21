@@ -33,8 +33,10 @@ stt: expr ';'                          # exprStt
 
 
 targ: NAME;
+treq: l=expr '=' r=expr #eqReq
+    ;
 arg: NAME ':' expr;
-fn: NAME ('{' targ (','targ)* '}')? '(' (arg (','arg)*)? ')' (':' retT=expr)? ('{' stt* retV=expr? '}' | '=>' retV=expr ';');
+fn: NAME ('{' targ (','targ)* ('&' treq)* '}')? '(' (arg (','arg)*)? ')' (':' retT=expr)? ('{' stt* retV=expr? '}' | '=>' retV=expr ';');
 export: SYMB '=' callable ';';
 
 prog: (fn | export)*;

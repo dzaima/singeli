@@ -18,6 +18,7 @@ public class SiFn {
   public final ExprContext[] argTypes;
   
   private final FnContext ctx;
+  private final List<TreqContext> treqs;
   
   public SiFn(SiProg p, FnContext ctx) {
     this.p = p;
@@ -29,6 +30,7 @@ public class SiFn {
     for (int i = 0; i < targs.size(); i++) targNames[i] = targs.get(i).NAME().getText();
     
     List<ArgContext> args = ctx.arg();
+    treqs = ctx.treq();
     argNames = new String[args.size()];
     argTypes = new ExprContext[args.size()];
     for (int i = 0; i < args.size(); i++) {
@@ -38,15 +40,34 @@ public class SiFn {
     }
   }
   
+  public static Derv derv(ArrayList<SiFn> fns, Sc sc, CallableContext c) {
+    for (SiFn f : fns) {
+      Derv d = f.derv(sc, c);
+      if (d!=null) return d;
+    }
+    if (fns.size()==1) {
+      SiFn f = fns.get(0);
+      int exp = f.targNames.length;
+      int got = c.texpr().size();
+      if (exp!=got) throw new ParseError("Incorrect targ count: expected "+exp+", got "+ got, c);
+      throw new ParseError("Conditions not satisfied", c);
+    }
+    throw new ParseError("No matching function found", c);
+  }
+  
   public Derv derv(Sc sc, CallableContext c) {
     List<TexprContext> ctxs = c.texpr();
-    if (ctxs.size() != targNames.length) throw new ParseError("Incorrect targ count: expected "+targNames.length+", got "+ctxs.size(), c);
+    if (ctxs.size() != targNames.length) return null;
     List<Def> targTypes = new ArrayList<>(ctxs.size());
     for (TexprContext e : ctxs) targTypes.add(sc.texpr(e));
     Derv prev = cache.get(targTypes);
     if (prev!=null) return prev;
-  
+    
     ChSc nsc = new ChSc(sc);
+    for (int i = 0; i < targTypes.size(); i++) nsc.addDef(targNames[i], targTypes.get(i));
+    
+    for (TreqContext r : treqs) if (SiReq.bad(nsc, r, targNames, targTypes)) return null;
+    
     Derv r = dervRaw(nsc, targTypes, c.NAME().getSymbol());
     sc.prog.addFn(nsc.code.b.toString());
     return r;
@@ -60,10 +81,8 @@ public class SiFn {
       deriving = true;
       String id = nsc.prog.nextFn();
       
-      for (int i = 0; i < vals.size(); i++) nsc.addDef(targNames[i], vals.get(i));
-      
       nsc.code.b.append("beginFn ").append(id);
-  
+      
       ExprContext tc = ctx.retT;
       Type retType = tc==null? null : nsc.type(tc);
       for (int i = 0; i < argNames.length; i++) {
@@ -72,7 +91,7 @@ public class SiFn {
         nsc.addVar(argNames[i], new SiExpr.ProcRes(t, nsc.code.next()));
         nsc.code.b.append(' ').append(t);
       }
-  
+      
       if (SiProg.COMMENTS) nsc.code.b.append(" // ").append(Derv.toString(this, vals));
       
       nsc.code.b.append('\n');
