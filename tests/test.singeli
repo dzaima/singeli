@@ -1,6 +1,15 @@
 add{T}(a:T, b:T) => a+b;
 'add_i32' = add{i32};
 'add_i64' = add{i64};
+sub{T}(a:T, b:T) => a-b;
+'sub_i32' = sub{i32};
+'sub_i64' = sub{i64};
 mul{T}(a:T, b:T) => a*b;
 'mul_i32' = mul{i32};
 'mul_i64' = mul{i64};
+div{T}(a:T, b:T) => a/b;
+'div_i32' = div{i32};
+'div_i64' = div{i64};
+
+n2066{T}(a:[n]T) => [1]T;
+'n2066' = n2066{100*2/3 + 3000 - 1000};

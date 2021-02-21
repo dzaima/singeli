@@ -13,17 +13,25 @@ public class IntConst extends Const {
   }
   
   public Def add(Def r) {
-    if (r instanceof IntConst && type==((IntConst) r).type) {
-      return new IntConst((val + ((IntConst) r).val) & type.mask, type);
-    }
+    if (match(r)) return new IntConst((val+((IntConst) r).val) & type.mask, type);
+    return super.add(r);
+  }
+  public Def sub(Def r) {
+    if (match(r)) return new IntConst((val-((IntConst) r).val) & type.mask, type);
     return super.add(r);
   }
   public Def mul(Def r) {
-    if (r instanceof IntConst && type==((IntConst) r).type) {
-      return new IntConst((val*((IntConst) r).val) & type.mask, type);
-    }
+    if (match(r)) return new IntConst((val*((IntConst) r).val) & type.mask, type);
     if (r instanceof Int || r instanceof VecType) return r.mul(this);
     return super.add(r);
+  }
+  public Def div(Def r) {
+    if (match(r)) return new IntConst((val/((IntConst) r).val) & type.mask, type);
+    if (r instanceof Int || r instanceof VecType) return r.div(this);
+    return super.add(r);
+  }
+  private boolean match(Def r) {
+    return r instanceof IntConst && type == ((IntConst) r).type;
   }
   
   public Type type() {

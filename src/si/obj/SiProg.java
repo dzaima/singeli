@@ -12,14 +12,16 @@ import java.util.*;
 
 public class SiProg {
   public static final boolean COMMENTS = true;
-  public final ArrayList<SiFn> add, mul;
+  public final ArrayList<SiFn> add, sub, mul, div;
   
   public SiProg(String archPath) {
     try {
       addFile(archPath);
     } catch (IOException e) { throw new RuntimeException(e); }
     add = fns.get("__add");
+    sub = fns.get("__sub");
     mul = fns.get("__mul");
+    div = fns.get("__div");
   }
   
   public final HashMap<String, ArrayList<SiFn>> fns = new HashMap<>();

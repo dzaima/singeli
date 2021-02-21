@@ -79,3 +79,6 @@ iadd{T & T=[8]i32}(a:T, b:T) => emit T "mm256_add_epi32" a b;
 'ok_iadd_8i32' = iadd{[8]i32};
 'iadd_5i32'    = iadd{[5]i32};
 'iadd_i64'     = iadd{i64};
+
+n2066{T}(a:[n]T) => [1]T;
+'n2066' = n2066{100*2/3 + 3000 - 1000};

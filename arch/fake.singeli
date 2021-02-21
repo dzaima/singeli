@@ -1,2 +1,4 @@
 __add{T}(a: T, b:T) => a;
+__sub{T}(a: T, b:T) => a;
 __mul{T}(a: T, b:T) => a;
+__div{T}(a: T, b:T) => a;

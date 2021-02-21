@@ -1,7 +1,9 @@
 package si.obj;
 
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import si.*;
+import si.gen.SingeliParser;
 import si.gen.SingeliParser.*;
 import si.scope.*;
 import si.types.*;
@@ -36,17 +38,11 @@ public class SiExpr {
     
     if (e instanceof AddExprContext) {
       AddExprContext ec = (AddExprContext) e;
-      ProcRes l = process(sc, ec.expr(0));
-      ProcRes r = process(sc, ec.expr(1));
-      if (!l.t.equals(r.t)) throw new ParseError("Expected '+' to have args of equal types: got "+l+" and "+r, ec.ref);
-      return emitCall(sc, SiFn.derv(sc.prog.add, sc, Main.of(l.t), ec.ref), l, r);
+      return builtin(sc, ec.l, ec.r, ec.ref, ec.ref.getText().equals("+")? sc.prog.add : sc.prog.sub);
     }
     if (e instanceof MulExprContext) {
       MulExprContext ec = (MulExprContext) e;
-      ProcRes l = process(sc, ec.expr(0));
-      ProcRes r = process(sc, ec.expr(1));
-      if (!l.t.equals(r.t)) throw new ParseError("Expected '*' to have args of equal types: got "+l+" and "+r, ec.ref);
-      return emitCall(sc, SiFn.derv(sc.prog.mul, sc, Main.of(l.t), ec.ref), l, r);
+      return builtin(sc, ec.l, ec.r, ec.ref, ec.ref.getText().equals("*")? sc.prog.mul : sc.prog.div);
     }
     if (e instanceof CallExprContext) {
       CallExprContext ec = (CallExprContext) e;
@@ -79,6 +75,13 @@ public class SiExpr {
     throw new ParseError("TODO SiExpr::process "+e.getClass(), e);
   }
   
+  private static ProcRes builtin(ChSc sc, ExprContext lc, ExprContext rc, Token ref, ArrayList<SiFn> fn) {
+    ProcRes l = process(sc, lc);
+    ProcRes r = process(sc, rc);
+    if (!l.t.equals(r.t)) throw new ParseError("Expected '+' to have args of equal types: got "+l+" and "+r, ref);
+    return emitCall(sc, SiFn.derv(fn, sc, Main.of(l.t), ref), l, r);
+  }
+  
   private static ProcRes emitCall(ChSc sc, SiFn.Derv derv, ProcRes... args) {
     String v = sc.code.next();
     StringBuilder tmp = new StringBuilder();
@@ -97,11 +100,15 @@ public class SiExpr {
     }
     if (e instanceof AddExprContext) {
       AddExprContext ec = (AddExprContext) e;
-      return processDef(sc, ec.expr(0)).add(processDef(sc, ec.expr(1)));
+      Def l = processDef(sc, ec.expr(0));
+      Def r = processDef(sc, ec.expr(1));
+      return ec.ref.getText().equals("+")? l.add(r) : l.sub(r);
     }
     if (e instanceof MulExprContext) {
       MulExprContext ec = (MulExprContext) e;
-      return processDef(sc, ec.expr(0)).mul(processDef(sc, ec.expr(1)));
+      Def l = processDef(sc, ec.expr(0));
+      Def r = processDef(sc, ec.expr(1));
+      return ec.ref.getText().equals("*")? l.mul(r) : l.div(r);
     }
     
     // type-only
