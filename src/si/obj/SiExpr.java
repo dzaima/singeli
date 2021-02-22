@@ -97,9 +97,10 @@ public class SiExpr {
   
   private static ProcRes emitCall(ChSc sc, SiFn.Derv derv, ProcRes... args) {
     String v = sc.code.next();
-    StringBuilder tmp = new StringBuilder();
-    for (ProcRes arg : args) tmp.append(' ').append(arg.id);
-    sc.code.b.append(v).append(" = call ").append(derv.id).append(' ').append(derv.ret).append(tmp).append('\n');
+    StringBuilder b = sc.code.b;
+    b.append(v).append(" = call ").append(derv.id).append(' ').append(derv.ret).append(' ').append(args.length);
+    for (ProcRes arg : args) b.append(' ').append(arg.id);
+    b.append('\n');
     return new ProcRes(derv.ret, v);
   }
   private static Const getConst(Sc sc, ExprContext e) {

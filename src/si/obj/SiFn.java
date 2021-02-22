@@ -84,7 +84,7 @@ public class SiFn {
     
     Derv r = dervRaw(nsc, targTypes, tk);
     sc.prog.addFn(
-      "beginFn "+r.id+" "+r.ret+ // completed by fn def; very hacky
+      "beginFn "+r.id+" "+r.ret+" "+argNames.length+ // completed by fn def; very hacky
       nsc.code.b.toString()+
       (SiProg.COMMENTS? "endFn\n\n" : "endFn\n")
     );

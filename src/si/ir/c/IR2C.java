@@ -40,13 +40,10 @@ public final class IR2C {
           String ret = type();
           b.append("static ");
           b.append(ret).append(' ').append(rename(n)).append('(');
-          int argc = 0;
-          while (i<s.length()) {
-            String c = type();
-            if (c.isEmpty()) break;
-            if (argc!=0) b.append(", ");
-            b.append(c).append(" v").append(argc);
-            argc++;
+          int argc = i32();
+          for (int j = 0; j < argc; j++) {
+            if (j!=0) b.append(", ");
+            b.append(type()).append(" v").append(j);
           }
           end();
           b.append(") {\n");
@@ -57,9 +54,9 @@ public final class IR2C {
             switch (op1) {
               case "ret":
                 b.append("  return ").append(name()).append(";\n");
-                end();
                 break;
               case "endFn":
+                end();
                 break stts;
               default:
                 if (!name().equals("=")) throw new Error("Unknown operation: `"+s+"`");
@@ -70,13 +67,10 @@ public final class IR2C {
                     String fn = name();
                     String ty = type();
                     b.append(ty).append(' ').append(op1).append(" = ").append(rename(fn)).append('(');
-                    boolean first = true;
-                    while (i<s.length()) {
-                      String c = name();
-                      if (c.isEmpty()) break;
-                      if (first) first = false;
-                      else b.append(", ");
-                      b.append(c);
+                    int cAm = i32();
+                    for (int j = 0; j < cAm; j++) {
+                      if(j!=0) b.append(", ");
+                      b.append(name());
                     }
                     b.append(')');
                     break;
@@ -91,7 +85,7 @@ public final class IR2C {
                     } else infix = false;
                     b.append(ty).append(' ').append(op1).append(" = ");
                     if (infix) {
-                      b.append(name()).append(' ').append(op3).append(name());
+                      b.append(name()).append(' ').append(op3).append(' ').append(name());
                     } else {
                       b.append(op3).append('(');
                       boolean first = true;
@@ -108,6 +102,7 @@ public final class IR2C {
                   }
                   default: throw new Error("Unknown operation: `"+s+"`");
                 }
+                end();
                 b.append(";\n");
                 break; 
             }
