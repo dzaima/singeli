@@ -11,7 +11,7 @@ import java.nio.file.*;
 import java.util.*;
 
 public class SiProg {
-  public static final boolean COMMENTS = false;
+  public static final boolean COMMENTS = true;
   public final ArrayList<SiFn> add, sub, mul, div, le, lt, ge, gt;
   public final SiArch arch;
   

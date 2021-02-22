@@ -115,7 +115,7 @@ public class SiFn {
         nsc.code.b.append(' ').append(t);
       }
       
-      if (SiProg.COMMENTS) nsc.code.b.append(" // ").append(Derv.toString(name, vals));
+      if (SiProg.COMMENTS) nsc.code.b.append(" # ").append(Derv.toString(name, vals));
       
       nsc.code.b.append('\n');
       

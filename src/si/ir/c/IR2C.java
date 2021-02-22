@@ -136,7 +136,11 @@ public final class IR2C {
   private String s;
   private int i;
   private void end() { // TODO comments & whitespace
-    if (i<s.length()) throw new Error("excessive IR line: `"+s+"`");
+    for (int j = i; j < s.length(); j++) {
+      char c = s.charAt(j);
+      if (c=='#') return;
+      if (c!=' ' & c!='\t') throw new Error("excessive IR line: `"+s+"`");
+    }
   }
   private String name() {
     int p = s.indexOf(' ', i);
