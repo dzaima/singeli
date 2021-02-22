@@ -8,20 +8,26 @@ STR: '"' ~["]* '"';
 INT: [1-9] [0-9]* | '0';
 HEX: '0' 'x' [0-9a-fA-F]+;
 TINT: INT [ui] INT;
+THEX: HEX [ui] INT;
 
 DEC: INT '.' [0-9]+
    |     '.' [0-9]+
-   | INT 
+   | INT
    ;
+F32: DEC 'f';
+F64: DEC 'd';
 
 REL: '<' | '>' | '<=' | '>=';
 
 texpr: expr | callable;
 callable: NAME ('{' texpr (','texpr)* '}')?;
 
-expr: NAME                                # varExpr
-    | INT                                 # intExpr
-    | TINT                                # tintExpr
+expr: v=NAME                              # varExpr
+    | v= INT                              # intExpr
+    | v=TINT                              # tintExpr
+    | v=(THEX|HEX)                        # hexExpr
+    | v=F32                               # f32Expr
+    | v=F64                               # f64Expr
     | 'true'                              # trueExpr
     | 'false'                             # falseExpr
     | '*' expr                            # ptrExpr

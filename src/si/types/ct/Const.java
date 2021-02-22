@@ -4,4 +4,5 @@ import si.types.*;
 
 public abstract class Const extends Def {
   public abstract Type type();
+  public abstract String lit();
 }

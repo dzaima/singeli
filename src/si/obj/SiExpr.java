@@ -30,19 +30,11 @@ public class SiExpr {
     
     if (e instanceof TrueExprContext) return TRUE;
     if (e instanceof FalseExprContext) return FALSE;
-    if (e instanceof IntExprContext) { // TODO can just makeConst maybe
+    Const cval = getConst(sc, e);
+    if (cval!=null) {
       String v = sc.code.next();
-      String s = ((IntExprContext) e).INT().getText();
-      try { Integer.parseInt(s); } catch (NumberFormatException t) { throw new ParseError("Invalid number constant "+s, e); }
-      sc.code.b.append(v).append(" = i32 ").append(s).append('\n');
-      return new ProcRes(IntType.i32, v);
-    }
-    if (e instanceof TintExprContext) {
-      String v = sc.code.next();
-      TintExprContext ec = (TintExprContext) e;
-      IntConst def = getInt(sc, ec);
-      sc.code.b.append(v).append(" = ").append(def.type).append(' ').append(def.type.signed? Long.toString(def.val) : Long.toUnsignedString(def.val)).append('\n');
-      return new ProcRes(def.type, v);
+      sc.code.b.append(v).append(" = ").append(cval.type()).append(' ').append(cval.lit()).append('\n');
+      return new ProcRes(cval.type(), v);
     }
     if (e instanceof GroupExprContext) return process(sc, ((GroupExprContext) e).expr());
     
@@ -97,18 +89,6 @@ public class SiExpr {
     throw new ParseError("TODO SiExpr::process "+e.getClass(), e);
   }
   
-  private static IntConst getInt(Sc sc, TintExprContext ec) {
-    String s = ec.TINT().getText();
-    int p = Math.max(s.indexOf('i'), s.indexOf('u'));
-    String i = s.substring(0, p);
-    try {
-      long val = s.charAt(p) == 'i'? Long.parseLong(i) : Long.parseUnsignedLong(i);
-      IntType ty = (IntType) sc.getDef(s.substring(p));
-      if (ty.w!=64 && val != (val & (ty.signed?ty.max_s:ty.max_u))) throw new ParseError("Invalid number constant "+s, ec);
-      return new IntConst(val, ty);
-    } catch (NumberFormatException e) { throw new ParseError("Invalid number constant "+s, ec); }
-  }
-  
   private static ProcRes builtin(ChSc sc, ExprContext lc, ExprContext rc, Token ref, ArrayList<SiFn> fn) {
     ProcRes l = process(sc, lc);
     ProcRes r = process(sc, rc);
@@ -122,6 +102,48 @@ public class SiExpr {
     sc.code.b.append(v).append(" = call ").append(derv.id).append(tmp).append('\n');
     return new ProcRes(derv.ret, v);
   }
+  private static Const getConst(Sc sc, ExprContext e) {
+    if (e instanceof IntExprContext) {
+      String s = ((IntExprContext) e).v.getText();
+      try {
+        int v = Integer.parseInt(s);
+        return new IntConst(v, IntType.i32);
+      } catch (NumberFormatException t) { throw new ParseError("Invalid number literal "+s, e); }
+    }
+    if (e instanceof TintExprContext) {
+      TintExprContext ec = (TintExprContext) e;
+      String s = ec.v.getText();
+      int p = s.indexOf('u'); if (p==-1) p = s.indexOf('i');
+      String i = s.substring(0, p);
+      try {
+        long val = s.charAt(p) == 'i'? Long.parseLong(i) : Long.parseUnsignedLong(i);
+        IntType ty = (IntType) sc.getDef(s.substring(p));
+        if (ty.w!=64 && val != (val & (ty.signed?ty.max_s:ty.max_u))) throw new ParseError("Invalid number literal "+s, ec);
+        return new IntConst(val, ty);
+      } catch (NumberFormatException t) { throw new ParseError("Invalid number literal "+s, ec); }
+    }
+    if (e instanceof HexExprContext) {
+      String s = ((HexExprContext) e).v.getText();
+      int p = s.indexOf('u'); if (p==-1) p = s.indexOf('i');
+      String val = p==-1? s.substring(2) : s.substring(2, p);
+      IntType ty = p==-1? IntType.i32 : (IntType) sc.getDef(s.substring(p));
+      if (val.length() > ty.w/4) throw new ParseError("Invalid hex constant "+s, e);
+      return new IntConst(Long.parseLong(val, 16), ty);
+    }
+    if (e instanceof F32ExprContext) {
+      String s = ((F32ExprContext) e).v.getText();
+      try {
+        return new F32Const(Float.parseFloat(s.substring(0, s.length()-1)));
+      } catch (NumberFormatException t) { throw new ParseError("Invalid float literal "+s, e); }
+    }
+    if (e instanceof F64ExprContext) {
+      String s = ((F64ExprContext) e).v.getText();
+      try {
+        return new F64Const(Float.parseFloat(s.substring(0, s.length()-1)));
+      } catch (NumberFormatException t) { throw new ParseError("Invalid float literal "+s, e); }
+    }
+    return null;
+  }
   
   public static Def processDef(Sc sc, ExprContext e) {
     if (e instanceof GroupExprContext) return processDef(sc, ((GroupExprContext) e).expr());
@@ -129,14 +151,8 @@ public class SiExpr {
     
     if (e instanceof TrueExprContext) return BoolConst.TRUE;
     if (e instanceof FalseExprContext) return BoolConst.FALSE;
-    if (e instanceof IntExprContext) {
-      String v = ((IntExprContext) e).INT().getText();
-      return new IntConst(Long.parseLong(v), IntType.i32);
-    }
-    if (e instanceof TintExprContext) {
-      TintExprContext ec = (TintExprContext) e;
-      return getInt(sc, ec);
-    }
+    Const cval = getConst(sc, e);
+    if (cval!=null) return cval;
     
     if (e instanceof AddExprContext) {
       AddExprContext ec = (AddExprContext) e;

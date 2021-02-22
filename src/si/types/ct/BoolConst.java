@@ -14,6 +14,7 @@ public class BoolConst extends Const {
   
   public Type type() { return Bool.u1; }
   
+  public String lit() { return s; }
   public String toString() { return s; }
   public int hashCode() { return System.identityHashCode(this); }
   public boolean equals(Object o) { return this==o; }

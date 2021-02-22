@@ -100,3 +100,12 @@ bad_u8   ():u8 => 456u8; 'const_u8O'=bad_u8;
 def_i8{n}():i8=>n;
 'ok_def_i8'=def_i8{123i8};
 'def_i8O'  =def_i8{234i8};
+
+hex_int():i32 => 0xffffffff   ; 'ok_hex_int'=hex_int; hex_intO():i32 => 0xfffffffff   ; 'hex_intO'=hex_intO;
+hex_i32():i32 => 0xffffffffi32; 'ok_hex_i32'=hex_i32; hex_i32O():i32 => 0xfffffffffi32; 'hex_i32O'=hex_i32O;
+hex_u32():u32 => 0xffffffffu32; 'ok_hex_u32'=hex_u32; hex_u32O():u32 => 0xfffffffffu32; 'hex_u32O'=hex_u32O;
+hex_i8():i32 => 0xffi32; 'ok_hex_i8'=hex_i8; hex_i8O():i8 => 0xfffi8; 'hex_i8O'=hex_i8O;
+hex_u8():u32 => 0xffu32; 'ok_hex_u8'=hex_u8; hex_u8O():u8 => 0xfffu8; 'hex_u8O'=hex_u8O;
+
+c_f32():f32 => 12.3f; 'ok_f32'=c_f32;
+c_f64():f64 => 12.3d; 'ok_f64'=c_f64;
