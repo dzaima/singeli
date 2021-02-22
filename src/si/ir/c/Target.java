@@ -17,8 +17,8 @@ public abstract class Target {
         if (w == 32) return "float";
         if (w == 64) return "double";
       } else {
-        String sgs = bType==0? "u" : "";
-        if (w == 1 && bType==0) return "bool";
+        String sgs = bType=='u'? "u" : "";
+        if (w == 1 && bType=='u') return "bool";
         if (w == 8) return sgs + "int8_t";
         if (w == 16) return sgs + "int16_t";
         if (w == 32) return sgs + "int32_t";
