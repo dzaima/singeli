@@ -1,4 +1,4 @@
-const_i32():i32=> 123   ; 'ok_const_int'=const_i32;
+const_int():i32=> 123   ; 'ok_const_int'=const_int;
 const_i32():i32=> 123i32; 'ok_const_i32'=const_i32;
 const_u32():u32=> 123u32; 'ok_const_u32'=const_u32;
 
