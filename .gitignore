@@ -6,3 +6,4 @@ src/si/gen/SingeliLexer.interp
 src/si/gen/SingeliLexer.tokens
 classes/
 si.jar
+arch/data-*.xml
