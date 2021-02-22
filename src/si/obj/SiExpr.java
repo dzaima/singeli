@@ -75,7 +75,7 @@ public class SiExpr {
         ProcRes p = process(sc, ec.expr(i));
         tmp.append(' ').append(p.id);
       }
-      sc.code.b.append(v).append(" = emit ").append(str(ec.STR())).append(tmp).append('\n');
+      sc.code.b.append(v).append(" = emit ").append(t).append(' ').append(str(ec.STR())).append(tmp).append('\n');
       return new ProcRes(t, v);
     }
     if (e instanceof FldExprContext) {
@@ -99,7 +99,7 @@ public class SiExpr {
     String v = sc.code.next();
     StringBuilder tmp = new StringBuilder();
     for (ProcRes arg : args) tmp.append(' ').append(arg.id);
-    sc.code.b.append(v).append(" = call ").append(derv.id).append(tmp).append('\n');
+    sc.code.b.append(v).append(" = call ").append(derv.id).append(' ').append(derv.ret).append(tmp).append('\n');
     return new ProcRes(derv.ret, v);
   }
   private static Const getConst(Sc sc, ExprContext e) {

@@ -11,7 +11,7 @@ import java.nio.file.*;
 import java.util.*;
 
 public class SiProg {
-  public static final boolean COMMENTS = true;
+  public static final boolean COMMENTS = false;
   public final ArrayList<SiFn> add, sub, mul, div, le, lt, ge, gt;
   public final SiArch arch;
   
@@ -56,7 +56,9 @@ public class SiProg {
         SingeliParser.CallableContext c = exp.callable();
         String fn = c.NAME().getText();
         SiFn.Derv d = SiFn.derv(fn(fn), sc, c);
-        ir.append("export ").append(d.id).append(' ').append(symb).append('\n');
+        ir.append("export ").append(d.id).append(' ').append(d.ret).append(' ').append(d.args.length);
+        for (Type a : d.args) ir.append(' ').append(a);
+        ir.append(' ').append(symb).append('\n');
         if (COMMENTS) ir.append('\n');
         symbols.put(symb, null);
         System.out.println("'"+symb+"' done");
