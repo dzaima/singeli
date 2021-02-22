@@ -1,4 +1,10 @@
 add{T}(a:T, b:T) => a+b;
 f3{T, fn}(a:T, b:T, c:T) => fn{T}(fn{T}(a,b),c);
 'add3_i32' = f3{i32, add};
-'add3_i64' = f3{[4]i32, add};
+'add3_vi32' = f3{$i32, add};
+  
+max{T}(a:T, b:T) {
+  if (a>b) return a;
+  else return b;
+}
+'max_i32' = max{i32};

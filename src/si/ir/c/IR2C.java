@@ -47,7 +47,10 @@ public final class IR2C {
           }
           end();
           b.append(") {\n");
+          boolean lbl = false;
           stts: while (true) {
+            boolean lblP = lbl;
+            lbl = false;
             if (ln >= lns.length) throw new Error("Unfinished function");
             i = 0; s = lns[ln++];
             String op1 = name();
@@ -55,9 +58,16 @@ public final class IR2C {
               case "ret":
                 b.append("  return ").append(name()).append(";\n");
                 break;
-              case "endFn":
-                end();
-                break stts;
+              case "gotoF":
+                b.append("  if (!(").append(name()).append(")) ").append("goto ").append(name()).append(";\n");
+                break;
+              case "goto":
+                b.append("  goto ").append(name()).append(";\n");
+                break;
+              case "lbl":
+                lbl = true;
+                b.append(name()).append(":\n");
+                break;
               default:
                 if (!name().equals("=")) throw new Error("Unknown operation: `"+s+"`");
                 b.append("  ");
@@ -102,10 +112,14 @@ public final class IR2C {
                   }
                   default: throw new Error("Unknown operation: `"+s+"`");
                 }
-                end();
                 b.append(";\n");
-                break; 
+                break;
+              case "endFn":
+                end();
+                if (lblP) b.append("  ;\n"); // to make a trailing label happy
+                break stts;
             }
+            end();
           }
           b.append("}\n\n");
           break;
