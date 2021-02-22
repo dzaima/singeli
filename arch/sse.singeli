@@ -6,6 +6,7 @@ __cmpgt{T, T & T.num}(a: T, b:T) => emit u1 "op >"  a b;
 __cmpge{T, T & T.num}(a: T, b:T) => emit u1 "op >=" a b;
 __cmplt{T, T & T.num}(a: T, b:T) => emit u1 "op <"  a b;
 __cmple{T, T & T.num}(a: T, b:T) => emit u1 "op <=" a b;
+read{n, E}(a: *E) => emit [n]E "read_or_sth" a n;
 
 __abs       {T & T=[8]i16}                             (a:T)              => emit [8]i16 "_mm_abs_epi16" a;                # pabsw
 __abs       {T & T=[4]i32}                             (a:T)              => emit [4]i32 "_mm_abs_epi32" a;                # pabsd

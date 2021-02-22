@@ -8,3 +8,7 @@ max{T}(a:T, b:T) {
   else return b;
 }
 'max_i32' = max{i32};
+
+addConst{T,one}(a:T) => a+one;
+'inc_i32' = addConst{i32, 1  };
+'inc_u8'  = addConst{u8 , 1u8};

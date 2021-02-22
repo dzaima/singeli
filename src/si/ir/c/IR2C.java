@@ -56,10 +56,10 @@ public final class IR2C {
             String op1 = name();
             switch (op1) {
               case "ret":
-                b.append("  return ").append(name()).append(";\n");
+                b.append("  return ").append(lit()).append(";\n");
                 break;
               case "gotoF":
-                b.append("  if (!(").append(name()).append(")) ").append("goto ").append(name()).append(";\n");
+                b.append("  if (!(").append(lit()).append(")) ").append("goto ").append(name()).append(";\n");
                 break;
               case "goto":
                 b.append("  goto ").append(name()).append(";\n");
@@ -80,7 +80,7 @@ public final class IR2C {
                     int cAm = i32();
                     for (int j = 0; j < cAm; j++) {
                       if(j!=0) b.append(", ");
-                      b.append(name());
+                      b.append(lit());
                     }
                     b.append(')');
                     break;
@@ -95,12 +95,12 @@ public final class IR2C {
                     } else infix = false;
                     b.append(ty).append(' ').append(op1).append(" = ");
                     if (infix) {
-                      b.append(name()).append(' ').append(op3).append(' ').append(name());
+                      b.append(lit()).append(' ').append(op3).append(' ').append(lit());
                     } else {
                       b.append(op3).append('(');
                       boolean first = true;
                       while (i<s.length()) {
-                        String c = name();
+                        String c = lit();
                         if (c.isEmpty()) break;
                         if (first) first = false;
                         else b.append(", ");
@@ -149,7 +149,7 @@ public final class IR2C {
   
   private String s;
   private int i;
-  private void end() { // TODO comments & whitespace
+  private void end() {
     for (int j = i; j < s.length(); j++) {
       char c = s.charAt(j);
       if (c=='#') return;
@@ -164,11 +164,25 @@ public final class IR2C {
     i = p+1;
     return r;
   }
+  private String lit() {
+    String s = name();
+    if (s.charAt(0)=='!') {
+      int p = s.indexOf(':');
+      if (p<1) throw new Error("Invalid literal `"+s+"`");
+      String val = s.substring(1, p);
+      String ty = type(s.substring(p+1));
+      return "(("+ty+")"+val+(s.charAt(p)=='u'?"ull" : "ll")+")";
+    }
+    return s;
+  }
   private String rename(String s) {
     return "si_"+s;
   }
   private String type() {
     String s = name();
+    return type(s);
+  }
+  private String type(String s) {
     char c = s.charAt(0);
     int am;
     int i = 0;
@@ -182,6 +196,7 @@ public final class IR2C {
     int w = Integer.parseInt(s.substring(i+1));
     return arch.type(c, w, am);
   }
+  
   private String rest() {
     String r = s.substring(i);
     i = r.length();

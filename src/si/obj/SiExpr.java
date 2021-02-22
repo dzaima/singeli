@@ -31,11 +31,7 @@ public class SiExpr {
     if (e instanceof TrueExprContext) return TRUE;
     if (e instanceof FalseExprContext) return FALSE;
     Const cval = getConst(sc, e);
-    if (cval!=null) {
-      String v = sc.code.next();
-      sc.code.b.append(v).append(" = ").append(cval.type()).append(' ').append(cval.lit()).append('\n');
-      return new ProcRes(cval.type(), v);
-    }
+    if (cval!=null) return makeConst(cval);
     if (e instanceof GroupExprContext) return process(sc, ((GroupExprContext) e).expr());
     
     if (e instanceof AddExprContext) {
