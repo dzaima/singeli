@@ -71,10 +71,13 @@ public class SiProg {
     }
   }
   
-  public void finish() {
-    System.out.println("\nresult:");
-    System.out.println(ir.toString());
-    if (!ok) System.exit(1);
+  public String finish() {
+    if (!ok) {
+      System.out.println("\nincomplete IR:");
+      System.out.println(ir.toString());
+      System.exit(1);
+    }
+    return ir.toString();
   }
   
   public ArrayList<SiFn> fn(String name) {
@@ -89,6 +92,6 @@ public class SiProg {
   }
   private int fnCtr = 0;
   public String nextFn() {
-    return "f" + fnCtr++;
+    return "d" + fnCtr++;
   }
 }

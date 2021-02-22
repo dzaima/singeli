@@ -83,7 +83,11 @@ public class SiFn {
     for (TreqContext r : treqs) if (SiReq.bad(nsc, r)) return null;
     
     Derv r = dervRaw(nsc, targTypes, tk);
-    sc.prog.addFn(nsc.code.b.toString());
+    sc.prog.addFn(
+      "beginFn "+r.id+" "+r.ret+ // completed by fn def; very hacky
+      nsc.code.b.toString()+
+      (SiProg.COMMENTS? "endFn\n\n" : "endFn\n")
+    );
     return r;
   }
   
@@ -101,7 +105,6 @@ public class SiFn {
       deriving = true;
       String id = nsc.prog.nextFn();
       
-      nsc.code.b.append("beginFn ").append(id);
       
       ExprContext tc = ctx.retT;
       nsc.code.ret = tc==null? null : nsc.type(tc);
@@ -128,9 +131,6 @@ public class SiFn {
         else if (!r.t.castableTo(retType)) throw new ParseError("Incompatible return type: can't cast " + r.t + " to " + retType, retExpr);
         nsc.code.b.append("ret ").append(r.id).append('\n');
       }
-      
-      nsc.code.b.append("endFn\n");
-      if (SiProg.COMMENTS) nsc.code.b.append('\n');
       
       Type[] realArgTypes = new Type[argTypes.length];
       for (int i = 0; i < argTypes.length; i++) realArgTypes[i] = nsc.type(argTypes[i]);

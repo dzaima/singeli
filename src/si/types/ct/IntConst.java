@@ -46,7 +46,7 @@ public class IntConst extends Const {
   }
   
   public String lit() { return type.signed? Long.toString(val) : Long.toUnsignedString(val); }
-  public String toString() { return val+":"+type; }
+  public String toString() { return lit()+":"+type; }
   public int hashCode() { return type.hashCode()+(int)val*1732050807; }
   public boolean equals(Object o) {
     if (!(o instanceof IntConst)) return false;
