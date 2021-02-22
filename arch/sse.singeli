@@ -1,11 +1,11 @@
-__add{T, T & T.int}(a:T, b:T) => emit T "op +" a b;
-__sub{T, T & T.int}(a:T, b:T) => emit T "op -" a b;
-__mul{T, T & T.int}(a:T, b:T) => emit T "op *" a b;
-__div{T, T & T.int}(a:T, b:T) => emit T "op /" a b;
-__cmpgt{T, T & T.int}(a: T, b:T) => emit u1 "op >"  a b;
-__cmpge{T, T & T.int}(a: T, b:T) => emit u1 "op >=" a b;
-__cmplt{T, T & T.int}(a: T, b:T) => emit u1 "op <"  a b;
-__cmple{T, T & T.int}(a: T, b:T) => emit u1 "op <=" a b;
+__add  {T, T & T.num}(a: T, b:T) => emit T "op +" a b;
+__sub  {T, T & T.num}(a: T, b:T) => emit T "op -" a b;
+__mul  {T, T & T.num}(a: T, b:T) => emit T "op *" a b;
+__div  {T, T & T.num}(a: T, b:T) => emit T "op /" a b;
+__cmpgt{T, T & T.num}(a: T, b:T) => emit u1 "op >"  a b;
+__cmpge{T, T & T.num}(a: T, b:T) => emit u1 "op >=" a b;
+__cmplt{T, T & T.num}(a: T, b:T) => emit u1 "op <"  a b;
+__cmple{T, T & T.num}(a: T, b:T) => emit u1 "op <=" a b;
 
 __abs       {T & T=[8]i16}                             (a:T)              => emit [8]i16 "_mm_abs_epi16" a;                # pabsw
 __abs       {T & T=[4]i32}                             (a:T)              => emit [4]i32 "_mm_abs_epi32" a;                # pabsd

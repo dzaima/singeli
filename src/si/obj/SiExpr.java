@@ -30,10 +30,19 @@ public class SiExpr {
     
     if (e instanceof TrueExprContext) return TRUE;
     if (e instanceof FalseExprContext) return FALSE;
-    if (e instanceof IntExprContext) {
+    if (e instanceof IntExprContext) { // TODO can just makeConst maybe
       String v = sc.code.next();
-      sc.code.b.append(v).append(" = i32 ").append(((IntExprContext) e).INT().getText()).append('\n');
+      String s = ((IntExprContext) e).INT().getText();
+      try { Integer.parseInt(s); } catch (NumberFormatException t) { throw new ParseError("Invalid number constant "+s, e); }
+      sc.code.b.append(v).append(" = i32 ").append(s).append('\n');
       return new ProcRes(IntType.i32, v);
+    }
+    if (e instanceof TintExprContext) {
+      String v = sc.code.next();
+      TintExprContext ec = (TintExprContext) e;
+      IntConst def = getInt(sc, ec);
+      sc.code.b.append(v).append(" = ").append(def.type).append(' ').append(def.type.signed? Long.toString(def.val) : Long.toUnsignedString(def.val)).append('\n');
+      return new ProcRes(def.type, v);
     }
     if (e instanceof GroupExprContext) return process(sc, ((GroupExprContext) e).expr());
     
@@ -88,6 +97,18 @@ public class SiExpr {
     throw new ParseError("TODO SiExpr::process "+e.getClass(), e);
   }
   
+  private static IntConst getInt(Sc sc, TintExprContext ec) {
+    String s = ec.TINT().getText();
+    int p = Math.max(s.indexOf('i'), s.indexOf('u'));
+    String i = s.substring(0, p);
+    try {
+      long val = s.charAt(p) == 'i'? Long.parseLong(i) : Long.parseUnsignedLong(i);
+      IntType ty = (IntType) sc.getDef(s.substring(p));
+      if (ty.w!=64 && val != (val & (ty.signed?ty.max_s:ty.max_u))) throw new ParseError("Invalid number constant "+s, ec);
+      return new IntConst(val, ty);
+    } catch (NumberFormatException e) { throw new ParseError("Invalid number constant "+s, ec); }
+  }
+  
   private static ProcRes builtin(ChSc sc, ExprContext lc, ExprContext rc, Token ref, ArrayList<SiFn> fn) {
     ProcRes l = process(sc, lc);
     ProcRes r = process(sc, rc);
@@ -105,13 +126,18 @@ public class SiExpr {
   public static Def processDef(Sc sc, ExprContext e) {
     if (e instanceof GroupExprContext) return processDef(sc, ((GroupExprContext) e).expr());
     if (e instanceof VarExprContext) return sc.getDef(((VarExprContext) e).NAME().getText());
-  
+    
     if (e instanceof TrueExprContext) return BoolConst.TRUE;
     if (e instanceof FalseExprContext) return BoolConst.FALSE;
     if (e instanceof IntExprContext) {
       String v = ((IntExprContext) e).INT().getText();
       return new IntConst(Long.parseLong(v), IntType.i32);
     }
+    if (e instanceof TintExprContext) {
+      TintExprContext ec = (TintExprContext) e;
+      return getInt(sc, ec);
+    }
+    
     if (e instanceof AddExprContext) {
       AddExprContext ec = (AddExprContext) e;
       Def l = processDef(sc, ec.expr(0));

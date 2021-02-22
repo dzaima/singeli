@@ -7,6 +7,7 @@ STR: '"' ~["]* '"';
 
 INT: [1-9] [0-9]* | '0';
 HEX: '0' 'x' [0-9a-fA-F]+;
+TINT: INT [ui] INT;
 
 DEC: INT '.' [0-9]+
    |     '.' [0-9]+
@@ -20,6 +21,7 @@ callable: NAME ('{' texpr (','texpr)* '}')?;
 
 expr: NAME                                # varExpr
     | INT                                 # intExpr
+    | TINT                                # tintExpr
     | 'true'                              # trueExpr
     | 'false'                             # falseExpr
     | '*' expr                            # ptrExpr

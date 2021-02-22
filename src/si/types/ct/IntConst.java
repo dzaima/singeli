@@ -13,20 +13,20 @@ public class IntConst extends Const {
   }
   
   public Def add(Def r) {
-    if (match(r)) return new IntConst((val+((IntConst) r).val) & type.mask, type);
+    if (match(r)) return new IntConst((val+((IntConst) r).val) & type.max_u, type);
     return super.add(r);
   }
   public Def sub(Def r) {
-    if (match(r)) return new IntConst((val-((IntConst) r).val) & type.mask, type);
+    if (match(r)) return new IntConst((val-((IntConst) r).val) & type.max_u, type);
     return super.sub(r);
   }
   public Def mul(Def r) {
-    if (match(r)) return new IntConst((val*((IntConst) r).val) & type.mask, type);
+    if (match(r)) return new IntConst((val*((IntConst) r).val) & type.max_u, type);
     if (r instanceof IntType || r instanceof VecType) return r.mul(this);
     return super.mul(r);
   }
   public Def div(Def r) {
-    if (match(r)) return new IntConst((val/((IntConst) r).val) & type.mask, type);
+    if (match(r)) return new IntConst((val/((IntConst) r).val) & type.max_u, type);
     return super.div(r);
   }
   public Def gt(Def r) {

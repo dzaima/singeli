@@ -1,11 +1,17 @@
-f(a:i32, b:i32) {
-  if (a>b) return a;
-  return b;
-}
-'f' = f;
-  
-g(a:i32, b:i32) {
-  if (a>b) return a;
-  else return b;
-}
-'g' = g;
+const_i32():i32=> 123   ; 'ok_const_int'=const_i32;
+const_i32():i32=> 123i32; 'ok_const_i32'=const_i32;
+const_u32():u32=> 123u32; 'ok_const_u32'=const_u32;
+
+const_i64():i64=>  9223372036854775807i64; 'ok_const_i64'=const_i64;
+const_u64():u64=> 18446744073709551615u64; 'ok_const_u64'=const_u64;
+bad_i64  ():i64=>  9223372036854775808i64; 'const_i64O'  =bad_i64;
+bad_u64  ():u64=> 99999999999999999999u64; 'const_u64O'  =bad_u64;
+
+const_i8 ():i8 => 123i8; 'ok_const_i8' =const_i8;
+const_u8 ():u8 => 234u8; 'ok_const_u8' =const_u8;
+bad_i8   ():i8 => 234i8; 'const_i8O'=bad_i8;
+bad_u8   ():u8 => 456u8; 'const_u8O'=bad_u8;
+
+def_i8{n}():i8=>n;
+'ok_def_i8'=def_i8{123i8};
+'def_i8O'  =def_i8{234i8};

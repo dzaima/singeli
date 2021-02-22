@@ -10,14 +10,16 @@ public final class IntType extends NumType {
   public final String name;
   public final int wl; // width log - 3,4,5,6
   public final boolean signed;
-  public final long mask;
+  public final long max_u; // max unsigned; alternatively, mask of needed bits of a value
+  public final long max_s; // max positive signed value
   
   public IntType(int wl, boolean signed) {
     super(1<<wl);
     this.wl = w;
     this.signed = signed;
     this.name = (signed? "i" : "u") + w;
-    mask = w==64? -1L : (1L<<w)-1;
+    this.max_u = w==64? -1L : (1L<<w)-1;
+    this.max_s = max_u >>>1;
   }
   
   public static final HashMap<String, IntType> defTypes = new HashMap<>();
@@ -41,6 +43,7 @@ public final class IntType extends NumType {
   
   public Def fld(String name) {
     if (name.equals("width")) return new IntConst(w, i32);
+    if (name.equals("num")) return BoolConst.TRUE;
     if (name.equals("int")) return BoolConst.TRUE;
     if (name.equals("signed")) return BoolConst.bool(signed);
     if (name.equals("unsigned")) return BoolConst.bool(!signed);
