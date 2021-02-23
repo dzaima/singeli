@@ -23,13 +23,18 @@ ParseAttr ← {
 
 isaList ← "SSE"‿"SSE2"‿"SSE3"‿"SSSE3"‿"SSE4.1"‿"SSE4.2"‿"AVX"‿"AVX2"‿"FMA"
 
-parent‿open‿cont ← ParseXml xml
-oname ← (∧`' '⊸≠)⊸/¨ open
-_on_ ← {𝔽○((oname∊𝕘)⊸/)}
-child ← ⊔ parent
-intr ← cont ∊⟜isaList⊸/_on_⟨"CPUID"⟩ parent
-names ← ≡¨⟜(<"name")⊸(⊑∘/)˝∘(⍉1⊑ParseAttr)¨ intr⊏open
-types ← intr⊏parent ⊔⟜((¯1⊑·ParseAttr ¯1⊸↓)¨)_on_"return"‿"parameter" open
+names‿GetCont‿GetVoid ← {
+  parent‿open‿cont ← ParseXml xml
+  findOpen ← {(⍷𝕩)⊸⊐⊏(⊔⊐𝕩)˙} (∧`' '⊸≠)⊸/¨ open
+  _on_ ← {𝔽○((∾FindOpen𝕘)⊸⊏)}
+  child ← ⊔ parent
+  intr ⇐ cont ∊⟜isaList⊸/_on_⟨"CPUID"⟩ parent
+  IG ← intr⊏⊔
+  GetCont ⇐ { parent IG _on_𝕩 cont }
+  GetVoid ⇐ { parent IG⟜((¯1⊑·ParseAttr ¯1⊸↓)¨)_on_𝕩 open }
+  names ⇐ ≡¨⟜(<"name")⊸(⊑∘/)˝∘(⍉1⊑ParseAttr)¨ intr⊏open
+}
+
 ProcType ← {
   IsDig ← 1=0‿10⍋-⟜'0'
   t‿n‿e ← ((1⊏˘𝕩)∾<"")⊏˜(⊏˘𝕩)⊐"type"‿"varname"‿"etype"
@@ -47,4 +52,10 @@ ProcType ← {
   act ∾↩ ⟨EP∘e⟩ # Various integer types
   ⟨n, pre∾(tp⊸⊐⌾<(∧`∘¬IsDig)⊸/)◶act t⟩
 }
-•Out¨ names ∾⟜(∾(" "∾⊣∾":"∾⊢)´¨)¨ ProcType¨¨ types
+
+proto ← (¯1↓⍟(""‿"void"≡⊑)ProcType¨)¨ GetVoid "return"‿"parameter"
+cpuid‿cat ← GetCont∘(⥊<)¨ "CPUID"‿"category"
+cpuid ↩ isaList ⊐ ⊑¨cpuid
+instrs ← 0‿1⊸⊑¨¨ GetVoid ⟨"instruction"⟩
+pp ← (⊣∾":"∾⊢)´¨¨proto
+•Out¨ <∘∾˘ (cpuid≍˘cat) ⍋⊸⊏ ⍉names∾("|"∾1↓·∾" "⊸∾¨)¨pp≍instrs
