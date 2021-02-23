@@ -94,7 +94,7 @@ public class SiExpr {
   private static ProcRes emitCall(ChSc sc, SiFn.Derv derv, ProcRes... args) {
     String v = sc.code.next();
     StringBuilder b = sc.code.b;
-    b.append("new ").append(v).append(" call ").append(derv.id).append(' ').append(derv.ret).append(' ').append(args.length);
+    b.append("new ").append(v).append(" call ").append(derv.ret).append(' ').append(derv.id).append(' ').append(args.length);
     for (ProcRes arg : args) b.append(' ').append(arg.id);
     b.append('\n');
     return new ProcRes(derv.ret, v);

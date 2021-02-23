@@ -58,8 +58,9 @@ public final class IR2C {
             String op1 = name();
             switch (op1) {
               case "ret":
+                String retv = lit();
                 if (ret.equals("void")) b.append("  return;\n");
-                else b.append("  return ").append(lit()).append(";\n");
+                else b.append("  return ").append(retv).append(";\n");
                 break;
               case "gotoF":
                 b.append("  if (!(").append(lit()).append(")) ").append("goto ").append(name()).append(";\n");
@@ -77,11 +78,12 @@ public final class IR2C {
                 b.append("  ");
                 String name = name();
                 String op2 = name();
+                String ty = type();
+                if (!ty.equals("void")) b.append(ty).append(' ').append(name).append(" = ");
                 switch (op2) {
                   case "call": {
                     String fn = name();
-                    String ty = type();
-                    b.append(ty).append(' ').append(name).append(" = ").append(rename(fn)).append('(');
+                    b.append(rename(fn)).append('(');
                     int cAm = i32();
                     for (int j = 0; j < cAm; j++) {
                       if(j!=0) b.append(", ");
@@ -91,14 +93,12 @@ public final class IR2C {
                     break;
                   }
                   case "emit": {
-                    String ty = type();
                     String op3 = name();
                     boolean infix;
                     if (op3.equals("op")) {
                       op3 = name();
                       infix = true;
                     } else infix = false;
-                    b.append(ty).append(' ').append(name).append(" = ");
                     if (infix) {
                       b.append(lit()).append(' ').append(op3).append(' ').append(lit());
                     } else {
@@ -116,9 +116,8 @@ public final class IR2C {
                     break;
                   }
                   case "val": {
-                    String ty = type();
                     String val = lit();
-                    b.append(ty).append(' ').append(name).append(" = ").append(val).append('\n');
+                    b.append(val).append('\n');
                     break;
                   }
                   default: throw new Error("Unknown operation: `"+s+"`");
