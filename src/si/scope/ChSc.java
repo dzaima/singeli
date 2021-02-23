@@ -43,7 +43,7 @@ public class ChSc extends Sc {
     Def d = defs.get(name);
     if (d!=null) if (d instanceof Const) return SiExpr.makeConst((Const) d);
     if (p instanceof ChSc) return ((ChSc) p).var(name);
-    d = p.getDef(name);
+    d = p.getDef(name, null);
     if (d instanceof Const) return SiExpr.makeConst((Const) d);
     throw new ParseError("Unknown variable "+name);
   }

@@ -1,14 +1,9 @@
-add{T}(a:T, b:T) => a+b;
-f3{T, fn}(a:T, b:T, c:T) => fn{T}(fn{T}(a,b),c);
-'add3_i32' = f3{i32, add};
-'add3_vi32' = f3{$i32, add};
-  
-max{T}(a:T, b:T) {
-  if (a>b) return a;
-  else return b;
+add{T}(a:*T, b:*T, r:*T, l:u64) : void {
+  i := 0u64;
+  while (i<l) {
+    set{T}(r, i, get{T}(a,i)+get{T}(b,i));
+    i = i+1u64;
+  }
 }
-'max_i32' = max{i32};
 
-addConst{T,one}(a:T) => a+one;
-'inc_i32' = addConst{i32, 1  };
-'inc_u8'  = addConst{u8 , 1u8};
+'add_i32' = add{i32};

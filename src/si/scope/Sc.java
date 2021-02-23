@@ -1,5 +1,6 @@
 package si.scope;
 
+import org.antlr.v4.runtime.Token;
 import si.ParseError;
 import si.obj.*;
 import si.types.*;
@@ -22,6 +23,7 @@ public class Sc {
     defs.put("f32", FloatType.f32);
     defs.put("f64", FloatType.f64);
     defs.put("u1", Bool.u1);
+    defs.put("void", VoidType.D);
   }
   protected Sc(Sc p) {
     this.p = p;
@@ -34,24 +36,24 @@ public class Sc {
     ExprContext expr = te.expr();
     if (expr!=null) return SiExpr.processDef(this, expr);
     CallableContext c = te.callable();
-    return new CallableDef.DervDef(getFn(c.NAME().getText()).derv(this, c));
+    return new CallableDef.DervDef(getFn(c.NAME().getText(), te.getStart()).derv(this, c));
   }
   public Type type(ExprContext e) {
     Def d = SiExpr.processDef(this, e);
     if (!(d instanceof Type)) throw new ParseError("Expected a type, got "+d, e);
     return (Type) d;
   }
-  public CallableDef getFn(String name) {
-    Def d = getDef(name);
+  public CallableDef getFn(String name, Token ref) {
+    Def d = getDef(name, ref);
     if (d instanceof CallableDef) return (CallableDef) d;
     throw new ParseError(name+" was not a function");
   }
   
-  public Def getDef(String name) {
+  public Def getDef(String name, Token ref) {
     Def def = defs.get(name);
     if (def==null) {
-      if (p==null) throw new ParseError("Unresolved name "+name);
-      return p.getDef(name);
+      if (p==null) throw new ParseError("Unresolved name "+name, ref);
+      return p.getDef(name, ref);
     }
     return def;
   }

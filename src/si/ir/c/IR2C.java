@@ -1,13 +1,10 @@
 package si.ir.c;
 
-import si.obj.*;
-import si.types.Type;
+import si.obj.SiProg;
 
 import java.io.IOException;
-import java.util.*;
 
 public final class IR2C {
-  private HashMap<String, ArrayList<Type>> fns = new HashMap<>();
   private StringBuilder b = new StringBuilder();
   private final Target arch;
   private IR2C(Target arch) {
@@ -24,6 +21,14 @@ public final class IR2C {
     b.append("#include<stdint.h>\n");
     b.append("#include<stdbool.h>\n");
     b.append("#include<xmmintrin.h>\n");
+    b.append("static inline void si_aseti8 (int8_t * a, uint8_t  n, int8_t  k) { a[n]=k; }\n");
+    b.append("static inline void si_aseti16(int16_t* a, uint64_t n, int16_t k) { a[n]=k; }\n");
+    b.append("static inline void si_aseti32(int32_t* a, uint64_t n, int32_t k) { a[n]=k; }\n");
+    b.append("static inline void si_aseti64(int64_t* a, uint64_t n, int64_t k) { a[n]=k; }\n");
+    b.append("static inline int8_t  si_ageti8 (int8_t * a, uint64_t n) { return a[n]; }\n");
+    b.append("static inline int16_t si_ageti16(int16_t* a, uint64_t n) { return a[n]; }\n");
+    b.append("static inline int32_t si_ageti32(int32_t* a, uint64_t n) { return a[n]; }\n");
+    b.append("static inline int64_t si_ageti64(int64_t* a, uint64_t n) { return a[n]; }\n");
     b.append('\n');
     
     String[] lns = pr.split("\n");
@@ -47,36 +52,36 @@ public final class IR2C {
           }
           end();
           b.append(") {\n");
-          boolean lbl = false;
           stts: while (true) {
-            boolean lblP = lbl;
-            lbl = false;
             if (ln >= lns.length) throw new Error("Unfinished function");
             i = 0; s = lns[ln++];
             String op1 = name();
             switch (op1) {
               case "ret":
-                b.append("  return ").append(lit()).append(";\n");
+                if (ret.equals("void")) b.append("  return;\n");
+                else b.append("  return ").append(lit()).append(";\n");
                 break;
               case "gotoF":
                 b.append("  if (!(").append(lit()).append(")) ").append("goto ").append(name()).append(";\n");
+                break;
+              case "gotoT":
+                b.append("  if (").append(lit()).append(") ").append("goto ").append(name()).append(";\n");
                 break;
               case "goto":
                 b.append("  goto ").append(name()).append(";\n");
                 break;
               case "lbl":
-                lbl = true;
-                b.append(name()).append(":\n");
+                b.append(name()).append(":;\n");
                 break;
-              default:
-                if (!name().equals("=")) throw new Error("Unknown operation: `"+s+"`");
+              case "new":
                 b.append("  ");
+                String name = name();
                 String op2 = name();
                 switch (op2) {
                   case "call": {
                     String fn = name();
                     String ty = type();
-                    b.append(ty).append(' ').append(op1).append(" = ").append(rename(fn)).append('(');
+                    b.append(ty).append(' ').append(name).append(" = ").append(rename(fn)).append('(');
                     int cAm = i32();
                     for (int j = 0; j < cAm; j++) {
                       if(j!=0) b.append(", ");
@@ -93,7 +98,7 @@ public final class IR2C {
                       op3 = name();
                       infix = true;
                     } else infix = false;
-                    b.append(ty).append(' ').append(op1).append(" = ");
+                    b.append(ty).append(' ').append(name).append(" = ");
                     if (infix) {
                       b.append(lit()).append(' ').append(op3).append(' ').append(lit());
                     } else {
@@ -110,14 +115,25 @@ public final class IR2C {
                     }
                     break;
                   }
+                  case "val": {
+                    String ty = type();
+                    String val = lit();
+                    b.append(ty).append(' ').append(name).append(" = ").append(val).append('\n');
+                    break;
+                  }
                   default: throw new Error("Unknown operation: `"+s+"`");
                 }
                 b.append(";\n");
                 break;
               case "endFn":
                 end();
-                if (lblP) b.append("  ;\n"); // to make a trailing label happy
                 break stts;
+              case "mut":
+                String k = name();
+                String v = lit();
+                b.append("  ").append(k).append(" = ").append(v).append(";\n");
+                break;
+              default: throw new Error("Unknown operation: `"+s+"`");
             }
             end();
           }
@@ -186,6 +202,8 @@ public final class IR2C {
     char c = s.charAt(0);
     int am;
     int i = 0;
+    while (c=='*') { i++; c = s.charAt(i); }
+    int ptrs = i;
     if (c=='[') {
       i = 2;
       while (s.charAt(i)!=']') { i++; if (i==s.length()) throw new Error("Bad type: `"+s+"`"); }
@@ -193,8 +211,9 @@ public final class IR2C {
       i++;
       c = s.charAt(i);
     } else am = -1;
+    if (c=='v' && s.equals("void")) return arch.type('v',0,-1, ptrs);
     int w = Integer.parseInt(s.substring(i+1));
-    return arch.type(c, w, am);
+    return arch.type(c, w, am, ptrs);
   }
   
   private String rest() {

@@ -43,10 +43,13 @@ expr: v=NAME                              # varExpr
     ;
 
 stt: expr ';'                               # exprStt
-   | NAME (':' t=expr)? '=' v=expr ';'      # nvarStt
+   | k=NAME ':'t=expr? '=' v=expr ';'       # nvarStt
+   | k=NAME '=' v=expr ';'                  # mvarStt
    | 'if' '('c=expr')' t=stt ('else'f=stt)? # ifStt
    | '{' stt* '}'                           # blockStt
    | 'return' e=expr ';'                    # retnStt
+   | 'while' '(' c=expr ')' t=stt           # whileStt
+   | 'do' t=stt 'while' '(' c=expr ')' ';'  # doWhileStt
    ;
 
 

@@ -14,6 +14,7 @@ public class SiProg {
   public static final boolean COMMENTS = true;
   public final ArrayList<SiFn> add, sub, mul, div, le, lt, ge, gt;
   public final SiArch arch;
+  public final Sc sc = new Sc(this);
   
   public SiProg(SiArch arch) {
     this.arch = arch;
@@ -33,12 +34,11 @@ public class SiProg {
   public final HashMap<String, ArrayList<SiFn>> fns = new HashMap<>();
   
   public void addFile(String path) throws IOException {
-    add(new String(Files.readAllBytes(Paths.get(path))));
+    add(new String(Files.readAllBytes(Paths.get(path))), path);
   }
   private boolean ok = true;
-  public void add(String s) {
+  public void add(String s, String path) {
     SingeliParser.ProgContext prog = new SingeliParser(new CommonTokenStream(new SingeliLexer(CharStreams.fromString(s)))).prog();
-    Sc sc = new Sc(this);
     for (SingeliParser.FnContext fn : prog.fn()) {
       SiFn f = new SiFn(this, fn);
       ArrayList<SiFn> alts = fns.computeIfAbsent(f.name, k -> new ArrayList<>());
@@ -64,7 +64,7 @@ public class SiProg {
         System.out.println("'"+symb+"' done");
       } catch (ParseError e) {
         if (lns==null) lns = s.split("\n");
-        System.err.println("'"+symb+"': "+e.get(lns));
+        System.err.println("'"+symb+"': "+e.get(lns, path));
         ok = false;
       } catch (Throwable t) {
         t.printStackTrace();

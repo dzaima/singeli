@@ -27,14 +27,14 @@ public class ParseError extends RuntimeException {
     this(msg, null, null);
   }
   
-  public String get(String[] lns) {
+  public String get(String[] lns, String path) {
     if (s==null) return msg;
     int sl = s.getLine(); int sp = s.getCharPositionInLine();
     int el = e.getLine(); int ep = e.getCharPositionInLine() + e.getStopIndex()-e.getStartIndex()+1;
     String ln = lns[sl-1];
     if (sl!=el) ep = ln.length();
     StringBuilder b = new StringBuilder();
-    b.append(msg).append('\n');
+    b.append(path).append(':').append(sl).append(": ").append(msg).append('\n');
     b.append(ln).append('\n');
     for (int i = 0; i < sp; i++) b.append(' ');
     for (int i = sp; i < ep; i++) b.append('^');

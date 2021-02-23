@@ -50,7 +50,7 @@ public class SiExpr {
     if (e instanceof CallExprContext) {
       CallExprContext ec = (CallExprContext) e;
       CallableContext c = ec.callable();
-      SiFn.Derv derv = sc.getFn(c.NAME().getText()).derv(sc, c);
+      SiFn.Derv derv = sc.getFn(c.NAME().getText(), c.start).derv(sc, c);
       List<ExprContext> args = ec.expr();
       if (args.size()!=derv.args.length) throw new ParseError("Incorrect argument count", ec);
       ProcRes[] pargs = new ProcRes[args.size()];
@@ -71,7 +71,7 @@ public class SiExpr {
         ProcRes p = process(sc, ec.expr(i));
         tmp.append(' ').append(p.id);
       }
-      sc.code.b.append(v).append(" = emit ").append(t).append(' ').append(str(ec.STR())).append(tmp).append('\n');
+      sc.code.b.append("new ").append(v).append(" emit ").append(t).append(' ').append(str(ec.STR())).append(tmp).append('\n');
       return new ProcRes(t, v);
     }
     if (e instanceof FldExprContext) {
@@ -94,7 +94,7 @@ public class SiExpr {
   private static ProcRes emitCall(ChSc sc, SiFn.Derv derv, ProcRes... args) {
     String v = sc.code.next();
     StringBuilder b = sc.code.b;
-    b.append(v).append(" = call ").append(derv.id).append(' ').append(derv.ret).append(' ').append(args.length);
+    b.append("new ").append(v).append(" call ").append(derv.id).append(' ').append(derv.ret).append(' ').append(args.length);
     for (ProcRes arg : args) b.append(' ').append(arg.id);
     b.append('\n');
     return new ProcRes(derv.ret, v);
@@ -114,7 +114,7 @@ public class SiExpr {
       String i = s.substring(0, p);
       try {
         long val = s.charAt(p) == 'i'? Long.parseLong(i) : Long.parseUnsignedLong(i);
-        IntType ty = (IntType) sc.getDef(s.substring(p));
+        IntType ty = (IntType) sc.getDef(s.substring(p), ec.v);
         if (ty.w!=64 && val != (val & (ty.signed?ty.max_s:ty.max_u))) throw new ParseError("Invalid number literal "+s, ec);
         return new IntConst(val, ty);
       } catch (NumberFormatException t) { throw new ParseError("Invalid number literal "+s, ec); }
@@ -123,7 +123,7 @@ public class SiExpr {
       String s = ((HexExprContext) e).v.getText();
       int p = s.indexOf('u'); if (p==-1) p = s.indexOf('i');
       String val = p==-1? s.substring(2) : s.substring(2, p);
-      IntType ty = p==-1? IntType.i32 : (IntType) sc.getDef(s.substring(p));
+      IntType ty = p==-1? IntType.i32 : (IntType) sc.getDef(s.substring(p), e.getStart());
       if (val.length() > ty.w/4) throw new ParseError("Invalid hex constant "+s, e);
       return new IntConst(Long.parseLong(val, 16), ty);
     }
@@ -144,7 +144,7 @@ public class SiExpr {
   
   public static Def processDef(Sc sc, ExprContext e) {
     if (e instanceof GroupExprContext) return processDef(sc, ((GroupExprContext) e).expr());
-    if (e instanceof VarExprContext) return sc.getDef(((VarExprContext) e).NAME().getText());
+    if (e instanceof VarExprContext) return sc.getDef(((VarExprContext) e).NAME().getText(), e.getStart());
     
     if (e instanceof TrueExprContext) return BoolConst.TRUE;
     if (e instanceof FalseExprContext) return BoolConst.FALSE;
@@ -176,7 +176,7 @@ public class SiExpr {
     // type-only
     if (e instanceof VecExprContext) {
       VecExprContext c = (VecExprContext) e;
-      Def d = sc.getDef(c.NAME().getText());
+      Def d = sc.getDef(c.NAME().getText(), c.NAME().getSymbol());
       if (!(d instanceof NumType)) throw new ParseError("Expected vector element type to be a number, was "+d, c);
       Const v = processConst(sc, c.expr());
       if (!(v instanceof IntConst)) throw new ParseError("Expected vector element type to be a number, got ["+v+"]"+d, c);
@@ -184,7 +184,7 @@ public class SiExpr {
     }
     if (e instanceof FvecExprContext) {
       FvecExprContext c = (FvecExprContext) e;
-      Def d = sc.getDef(c.NAME().getText());
+      Def d = sc.getDef(c.NAME().getText(), c.NAME().getSymbol());
       if (!(d instanceof NumType)) throw new ParseError("Expected vector element type to be a number, was "+d, c);
       return new VecType(sc.prog.arch.maxWidth/((NumType) d).w, (NumType) d);
     }
@@ -205,6 +205,11 @@ public class SiExpr {
     Def d = processDef(sc, e);
     if (!(d instanceof Const)) throw new ParseError("Expected a value, got "+d, e);
     return (Const) d;
+  }
+  public static String processBool(ChSc sc, ExprContext e) {
+    SiExpr.ProcRes cond = SiExpr.process(sc, e);
+    if (!cond.t.equals(Bool.u1)) throw new ParseError("Expected boolean, got "+cond.t);
+    return cond.id;
   }
   
   
