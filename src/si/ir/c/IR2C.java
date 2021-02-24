@@ -5,10 +5,10 @@ import si.obj.SiProg;
 import java.io.IOException;
 
 public final class IR2C {
-  private StringBuilder b = new StringBuilder();
-  private final Target arch;
-  private IR2C(Target arch) {
-    this.arch = arch;
+  private final StringBuilder b = new StringBuilder();
+  private final Target t;
+  private IR2C(Target t) {
+    this.t = t;
   }
   
   public static String parse(Target t, String s) {
@@ -18,17 +18,7 @@ public final class IR2C {
   }
   
   public void parse(String pr) {
-    b.append("#include<stdint.h>\n");
-    b.append("#include<stdbool.h>\n");
-    b.append("#include<xmmintrin.h>\n");
-    b.append("static inline void si_aseti8 (int8_t * a, uint8_t  n, int8_t  k) { a[n]=k; }\n");
-    b.append("static inline void si_aseti16(int16_t* a, uint64_t n, int16_t k) { a[n]=k; }\n");
-    b.append("static inline void si_aseti32(int32_t* a, uint64_t n, int32_t k) { a[n]=k; }\n");
-    b.append("static inline void si_aseti64(int64_t* a, uint64_t n, int64_t k) { a[n]=k; }\n");
-    b.append("static inline int8_t  si_ageti8 (int8_t * a, uint64_t n) { return a[n]; }\n");
-    b.append("static inline int16_t si_ageti16(int16_t* a, uint64_t n) { return a[n]; }\n");
-    b.append("static inline int32_t si_ageti32(int32_t* a, uint64_t n) { return a[n]; }\n");
-    b.append("static inline int64_t si_ageti64(int64_t* a, uint64_t n) { return a[n]; }\n");
+    b.append(t.headers());
     b.append('\n');
     
     String[] lns = pr.split("\n");
@@ -210,9 +200,9 @@ public final class IR2C {
       i++;
       c = s.charAt(i);
     } else am = -1;
-    if (c=='v' && s.equals("void")) return arch.type('v',0,-1, ptrs);
+    if (c=='v' && s.equals("void")) return t.type('v',0,-1, ptrs);
     int w = Integer.parseInt(s.substring(i+1));
-    return arch.type(c, w, am, ptrs);
+    return t.type(c, w, am, ptrs);
   }
   
   private String rest() {
