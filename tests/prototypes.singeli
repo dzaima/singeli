@@ -19,3 +19,13 @@ mulvv_over{T,S,O | S<T & O>T}(n:Size, z:*O, w:*S, x:*T) : Size {
   }
   n
 }
+
+
+scanv{op, id, T}(n:Size, z:*T, x:*T) {  
+  s:T = id;
+  @for_vec{T} x, z over i to n {  
+    opo = op@{return i};
+    z=r=opo{s, scan{opo, x}}; s=r[-1]
+  }
+  n
+}  
