@@ -7,29 +7,25 @@ safe_double{f64} (x:f64) => x+x
 
 
 mulvv{T,S | S<T}(n:Size, z:*T, w:*S, x:*T) : Size {
-  autofor (w, x, z; i to n) { // w,x and z now become vectors of unknown, but equal length, possibly different between iterations (aka k∊1…∞; w:[k]S; x:[k]T; z:[k]T)
+  @for_vec{T} w, x, z over i to n {
     z = Cast{T}(w) *@{return i;} x;
   }
   n
 }
 
 mulvv_over{T,S,O | S<T & O>T}(n:Size, z:*O, w:*S, x:*T) : Size {
-  autofor (w, x, z; i to n) {
+  @for_vec{O} w, x, z over i to n {
     z = Cast{O}(w) * Cast{O}(x);
   }
   n
 }
 
-mulvv{T,S | S<T}(n:Size, z:*T, w:*S, x:*T) : Size {
-  for_scal{T} w, x, z over i in n {
-    z = Cast{T}(w) *@{return i} x
-  }
-  n
-}
 
-mulvv_over{T,S,O | S<T & O>T}(n:Size, z:*O, w:*S, x:*T) : Size {
-  for_scal{O} w, x, z over n {
-    z = Cast{O}(w) * Cast{O}(x)
+scanv{op, id, T}(n:Size, z:*T, x:*T) {  
+  s:T = id;
+  @for_vec{T} x, z over i to n {  
+    opo = op@{return i};
+    z=r=opo{s, scan{opo, x}}; s=r[-1]
   }
   n
-}
+}  

@@ -1,0 +1,68 @@
+def for_each{begin,end,vars,block} = {
+  loop = newGoto{}; exit = newGoto{};
+  i:u64 = begin;   # usize?
+  label{loop};
+  goto{exit, i>=end};
+  exec{i, vars,block};
+  i = i+1;
+  goto{loop};
+  label{exit};
+}
+
+def for_inline{begin,end,vars,block & begin=end} = {
+  exec{begin, vars,block}
+}
+def for_inline{begin,end,vars,block & begin<end} = {
+  exec      {begin,       vars,block};
+  for_inline{begin+1,end, vars,block}
+}
+
+def for_unroll{max & isNat{max}}{begin,end,vars,block} = {
+  exit = newGoto{};
+  def run{k} = {
+    goto{exit, begin>=end};
+    exec{begin, vars,block};
+    begin = begin+1;
+    run{k+1}
+  }
+  def run{k=max} = { }
+  run{0};
+  label{exit}
+}
+
+# Convert tuple of *T pointers to tuple of *[n]T
+def vecs{n,vars} = {
+  # elt{type{v}} gets T from v:*T
+  def vec{v} = cast{*[n]elt{type{v}}}{v};
+  # map over tuple
+  each{vec, vars}
+}
+
+# Add off to each pointer
+def offset{n, ptrs} = { def off{v} = v+n; each{off,vars} }
+
+def for_round_up{n}{begin=0,len,vars,block} = {
+  l := (len+(n-1))//n;  # TODO: benchmark an overflow-safe divmod version
+  for_each{0, l, vecs{vars}, block}
+}
+
+def for_scalar_tail{n}{begin=0,len,vars,block} = {
+  l := len//n;
+  for_each     {0  , l  , vecs{vars}, block};
+  for_unroll{n}{l*n, len,      vars , block}
+}
+
+def for_overlap{n, for_small}{begin=0,len,vars,block} = {
+  if (len <= n) {
+    for_small{n}{0,len, vars,block}
+  } else {
+    for_each{0, (len-1)//n, vecs{vars}, block};
+    exec{0, vecs{offset{len-n,vars}}, block}
+  }
+}
+def for_overlap{n} = for_overlap{n, for_each}
+
+# Run a for loop that requires begin=0 at arbitrary starting point
+def for_offset{for_0}{begin,end,vars,block} = {
+  for_0{0, end-begin, offset{vars,begin}, block}
+}
