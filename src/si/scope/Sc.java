@@ -33,6 +33,7 @@ public class Sc {
   
   
   public Def texpr(TexprContext te) {
+    if (te.dyn!=null) throw new ParseError("Didn't expect runtime value", te);
     ExprContext expr = te.expr();
     if (expr!=null) return SiExpr.processDef(this, expr);
     CallableContext c = te.callable();

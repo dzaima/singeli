@@ -19,8 +19,9 @@ F64: DEC 'd';
 
 REL: '<' | '>' | '<=' | '>=';
 
-texpr: expr | callable;
-callable: NAME ('{' texpr (','texpr)* '}')?;
+texpr: dyn=':'? expr | callable;
+tinv: '{' (texpr (','texpr)*)? '}';
+callable: n=NAME t=tinv?;
 
 expr: v=NAME                              # varExpr
     | v= INT                              # intExpr
@@ -30,10 +31,11 @@ expr: v=NAME                              # varExpr
     | v=F64                               # f64Expr
     | 'true'                              # trueExpr
     | 'false'                             # falseExpr
+    | '(' expr ')'                        # groupExpr
     | '*' expr                            # ptrExpr
     | '$' NAME                            # fvecExpr
     | '[' expr ']' NAME                   # vecExpr
-    | '(' expr ')'                        # groupExpr
+    | n=NAME tinv*                        # defCallExpr
     | callable '(' (expr (','expr)*)? ')' # callExpr
     | l=expr ref=('*'|'/') r=expr         # mulExpr
     | l=expr ref=('+'|'-') r=expr         # addExpr
@@ -49,19 +51,25 @@ stt: expr ';'                               # exprStt
    | '{' stt* '}'                           # blockStt
    | 'return' e=expr ';'                    # retnStt
    | 'while' '(' c=expr ')' t=stt           # whileStt
-   | 'do' t=stt 'while' '(' c=expr ')' ';'  # doWhileStt
+   | 'exec' '('expr(','expr)*','NAME')' ';' # execStt
+   | '@'(c=callable | 'for') '(' (name2(','name2)* 'over')? i=NAME (('from' s=expr)? 'to' e=expr)? ')' stt # forStt
    ;
-
+name2: NAME; // make retreiving separate names simpler
 
 targ: name=NAME ('::' spec=expr)?;
 treq: l=expr '=' r=expr #eqReq
     | e=expr            #boolReq
     ;
+targs: '{' (targ (','targ)*)? ('&' treq)* '}';
 arg: NAME ':' expr;
-fn: NAME ('{' targ (','targ)* ('&' treq)* '}')? '(' (arg (','arg)*)? ')' (':' retT=expr)? ('{' stt* retV=expr? '}' | '=>' retV=expr ';');
+
+fn: n=NAME targs? '(' (arg (','arg)*)? ')' (':' retT=expr)? ('{' stt* retV=expr? '}' | '=>' retV=expr ';');
+
+def: 'def' n=NAME targs* ('=' '{' stt* retV=expr? '}' | '=>' retV=expr ';');
+
 export: SYMB '=' callable ';';
 
-prog: (fn | export)*;
+prog: (fn | export | def)*;
 WS: [ \t\n\r] + -> skip;
      COMMENT: '/*' .*? '*/' -> channel(HIDDEN);
 LINE_COMMENT: ('//'|'#') ~[\r\n]* -> channel(HIDDEN);

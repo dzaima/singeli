@@ -1,9 +1,7 @@
-add{T}(a:*T, b:*T, r:*T, l:u64) : void {
-  i := 0u64;
-  while (i<l) {
-    set{T}(r, i, get{T}(a,i)+get{T}(b,i));
-    i = i+1u64;
-  }
+def d{T,a,b} = {
+  c:T = a+b;
+  a*c
 }
 
-'add_i32' = add{i32};
+f{T,x}(a:T) => d{T,:a,x};
+'f'=f{i32, 5};

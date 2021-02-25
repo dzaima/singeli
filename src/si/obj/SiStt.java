@@ -1,10 +1,9 @@
 package si.obj;
 
 import si.ParseError;
-import si.gen.SingeliParser;
 import si.gen.SingeliParser.*;
 import si.scope.ChSc;
-import si.types.*;
+import si.types.Type;
 
 public class SiStt {
   public static void process(ChSc sc, SttContext stt) {
@@ -27,7 +26,7 @@ public class SiStt {
     }
     if (stt instanceof MvarSttContext) {
       MvarSttContext c = (MvarSttContext) stt;
-      SiExpr.ProcRes prev = sc.var(c.k.getText());
+      SiExpr.ProcRes prev = sc.var(c.k.getText(), c.k);
       SiExpr.ProcRes curr = SiExpr.process(sc, c.v);
       if (!curr.t.castableTo(prev.t)) throw new ParseError("Cannot assign "+curr.t+" to "+prev.t, stt);
       sc.code.b.append("mut ").append(prev.id).append(' ').append(curr.id).append('\n');
@@ -41,7 +40,7 @@ public class SiStt {
       return;
     }
     if (stt instanceof BlockSttContext) {
-      ChSc nsc = new ChSc(sc, sc.code);
+      ChSc nsc = new ChSc(sc, 2);
       for (SttContext c : ((BlockSttContext) stt).stt()) SiStt.process(nsc, c);
       return;
     }

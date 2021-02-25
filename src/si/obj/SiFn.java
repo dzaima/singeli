@@ -2,6 +2,7 @@ package si.obj;
 
 import org.antlr.v4.runtime.Token;
 import si.ParseError;
+import si.gen.SingeliParser;
 import si.scope.*;
 import si.types.*;
 
@@ -12,10 +13,7 @@ import static si.gen.SingeliParser.*;
 public class SiFn {
   public final SiProg p;
   public final String name;
-  
-  public final String[] targNames;
-  public final ExprContext[] targSpec;
-  private final List<TreqContext> treqs;
+  public final SiTargs targs;
   
   public final String[] argNames;
   public final ExprContext[] argTypes;
@@ -25,41 +23,39 @@ public class SiFn {
   public SiFn(SiProg p, FnContext ctx) {
     this.p = p;
     this.ctx = ctx;
-    this.name = ctx.NAME().getText();
-    
-    List<TargContext> targs = ctx.targ();
-    targNames = new String[targs.size()];
-    targSpec = new ExprContext[targs.size()];
-    for (int i = 0; i < targs.size(); i++) {
-      TargContext ta = targs.get(i);
-      targNames[i] = ta.name.getText();
-      targSpec[i] = ta.spec;
-    }
-    
-    List<ArgContext> args = ctx.arg();
-    treqs = ctx.treq();
+    this.name = ctx.n.getText();
+    this.targs = new SiTargs(ctx.targs());
+    List<SingeliParser.ArgContext> args = ctx.arg();
     argNames = new String[args.size()];
-    argTypes = new ExprContext[args.size()];
+    argTypes = new SingeliParser.ExprContext[args.size()];
     for (int i = 0; i < args.size(); i++) {
-      ArgContext arg = args.get(i);
+      SingeliParser.ArgContext arg = args.get(i);
       argNames[i] = arg.NAME().getText();
       argTypes[i] = arg.expr();
     }
   }
   
   public static Derv derv(ArrayList<SiFn> fns, Sc sc, CallableContext c) {
-    return derv(fns, sc, defs(sc, c.texpr()), c.NAME().getSymbol());
+    ArrayList<Def> targTypes;
+    if (c.t != null) {
+      List<TexprContext> ctxs = c.t.texpr();
+      targTypes = new ArrayList<>(ctxs.size());
+      for (TexprContext e : ctxs) targTypes.add(sc.texpr(e));
+    } else {
+      targTypes = new ArrayList<>();
+    }
+    return derv(fns, sc, targTypes, c.n);
   }
   
   public static Derv derv(ArrayList<SiFn> fns, Sc sc, List<Def> targTypes, Token tk) {
     for (SiFn f : fns) {
-      if (f.targNames.length!= targTypes.size()) continue;
+      if (f.targs.size!=targTypes.size()) continue;
       Derv d = f.derv(sc, targTypes, tk);
       if (d!=null) return d;
     }
     if (fns.size()==1) {
       SiFn f = fns.get(0);
-      int exp = f.targNames.length;
+      int exp = f.targs.size;
       int got = targTypes.size();
       if (exp!=got) throw new ParseError("Incorrect targ count: expected "+exp+", got "+ got, tk);
       throw new ParseError("Conditions not satisfied in "+Derv.toString(fns.get(0).name, targTypes), tk);
@@ -71,16 +67,8 @@ public class SiFn {
   private Derv derv(Sc sc, List<Def> targTypes, Token tk) {
     Derv prev = cache.get(targTypes);
     if (prev!=null) return prev;
-    
     ChSc nsc = new ChSc(sc);
-    for (int i = 0; i < targTypes.size(); i++) {
-      Def currD = targTypes.get(i);
-      if (targSpec[i]!=null && !sc.type(targSpec[i]).equals(currD)) return null;
-      Def prevD = nsc.defs.put(targNames[i], currD);
-      if (prevD!=null && !prevD.equals(currD)) return null;
-    }
-    
-    for (TreqContext r : treqs) if (SiReq.bad(nsc, r)) return null;
+    if (!targs.derv(sc, nsc, targTypes)) return null;
     
     Derv r = dervRaw(nsc, targTypes, tk);
     sc.prog.addFn(
@@ -89,12 +77,6 @@ public class SiFn {
       (SiProg.COMMENTS? "endFn\n\n" : "endFn\n")
     );
     return r;
-  }
-  
-  private static List<Def> defs(Sc sc, List<TexprContext> ctxs) {
-    List<Def> targTypes = new ArrayList<>(ctxs.size());
-    for (TexprContext e : ctxs) targTypes.add(sc.texpr(e));
-    return targTypes;
   }
   
   private boolean deriving;
@@ -118,20 +100,22 @@ public class SiFn {
       if (SiProg.COMMENTS) nsc.code.b.append(" # ").append(Derv.toString(name, vals));
       
       nsc.code.b.append('\n');
-      
-      for (SttContext stt : ctx.stt()) SiStt.process(nsc, stt);
-      
       ExprContext retExpr = ctx.retV;
-      Type retType = nsc.code.ret;
-      if (retExpr==null) {
-        if (retType==null) throw new ParseError("Function must either end with an expression or specify a result type", ctx);
+      List<SttContext> stts = ctx.stt();
+  
+      for (SttContext stt : stts) SiStt.process(nsc, stt);
+  
+      Type retType1 = nsc.code.ret;
+      if (retExpr ==null) {
+        if (retType1 ==null) throw new ParseError("Function must either end with an expression or specify a result type", ctx.n);
       } else {
         SiExpr.ProcRes r = SiExpr.process(nsc, retExpr);
-        if (retType == null) retType = r.t;
-        else if (!r.t.castableTo(retType)) throw new ParseError("Incompatible return type: can't cast " + r.t + " to " + retType, retExpr);
+        if (retType1 == null) retType1 = r.t;
+        else if (!r.t.castableTo(retType1)) throw new ParseError("Incompatible return type: can't cast " + r.t + " to " + retType1, retExpr);
         nsc.code.b.append("ret ").append(r.id).append('\n');
       }
-      
+      Type retType = retType1;
+  
       Type[] realArgTypes = new Type[argTypes.length];
       for (int i = 0; i < argTypes.length; i++) realArgTypes[i] = nsc.type(argTypes[i]);
       Derv d = new Derv(this, retType, realArgTypes, vals, id);

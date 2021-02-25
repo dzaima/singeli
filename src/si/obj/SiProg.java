@@ -3,6 +3,7 @@ package si.obj;
 import org.antlr.v4.runtime.*;
 import si.ParseError;
 import si.gen.*;
+import si.gen.SingeliParser.*;
 import si.scope.Sc;
 import si.types.*;
 
@@ -39,7 +40,14 @@ public class SiProg {
   private boolean ok = true;
   public void add(String s, String path) {
     SingeliParser.ProgContext prog = new SingeliParser(new CommonTokenStream(new SingeliLexer(CharStreams.fromString(s)))).prog();
-    for (SingeliParser.FnContext fn : prog.fn()) {
+    for (DefContext def : prog.def()) {
+      SiDef d = new SiDef(def);
+      Def wrq = sc.defs.computeIfAbsent(d.name, k -> new SiDef.DefWrap(d.name));
+      if (!(wrq instanceof SiDef.DefWrap)) throw new ParseError("Defining different constructs with the same name `"+d.name+"`", def);
+      ((SiDef.DefWrap) wrq).alt(d);
+    }
+    
+    for (FnContext fn : prog.fn()) {
       SiFn f = new SiFn(this, fn);
       ArrayList<SiFn> alts = fns.computeIfAbsent(f.name, k -> new ArrayList<>());
       alts.add(f);

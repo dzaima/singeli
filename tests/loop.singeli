@@ -1,27 +1,27 @@
-def for_each{begin,end,vars,block} = {
-  loop = newGoto{}; exit = newGoto{};
+def for_each {begin,end,vars,block} = {
+  loop = newLabel{}; exit = newLabel{};
   i:u64 = begin;   # usize?
   label{loop};
   goto{exit, i>=end};
-  exec{i, vars,block};
+  exec{i, vars, block};
   i = i+1;
   goto{loop};
   label{exit};
 }
 
-def for_inline{begin,end,vars,block & begin=end} = {
-  exec{begin, vars,block}
+def for_inline {begin,end,vars,block & begin=end} = {
+  exec{begin, vars, block}
 }
-def for_inline{begin,end,vars,block & begin<end} = {
+def for_inline {begin,end,vars,block & begin<end} = {
   exec      {begin,       vars,block};
   for_inline{begin+1,end, vars,block}
 }
 
-def for_unroll{max & isNat{max}}{begin,end,vars,block} = {
-  exit = newGoto{};
+def for_unroll{max & isNat{max}} {begin,end,vars,block} = {
+  exit := newLabel{};
   def run{k} = {
     goto{exit, begin>=end};
-    exec{begin, vars,block};
+    exec(begin, vars, block);
     begin = begin+1;
     run{k+1}
   }
@@ -41,22 +41,22 @@ def vecs{n,vars} = {
 # Add off to each pointer
 def offset{n, ptrs} = { def off{v} = v+n; each{off,vars} }
 
-def for_round_up{n}{begin=0,len,vars,block} = {
-  l := (len+(n-1))//n;  # TODO: benchmark an overflow-safe divmod version
+def for_round_up{n} {begin::0,len,vars,block} = {
+  l := (len+(n-1))/n;  # TODO: benchmark an overflow-safe divmod version
   for_each{0, l, vecs{vars}, block}
 }
 
-def for_scalar_tail{n}{begin=0,len,vars,block} = {
-  l := len//n;
+def for_scalar_tail{n} {begin::0,len,vars,block} = {
+  l := len/n;
   for_each     {0  , l  , vecs{vars}, block};
   for_unroll{n}{l*n, len,      vars , block}
 }
 
-def for_overlap{n, for_small}{begin=0,len,vars,block} = {
+def for_overlap{n, for_small} {begin::0,len,vars,block} = {
   if (len <= n) {
     for_small{n}{0,len, vars,block}
   } else {
-    for_each{0, (len-1)//n, vecs{vars}, block};
+    for_each{0, (len-1)/n, vecs{vars}, block};
     exec{0, vecs{offset{len-n,vars}}, block}
   }
 }

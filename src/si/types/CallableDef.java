@@ -35,7 +35,7 @@ public abstract class CallableDef extends Def {
       this.d = d;
     }
     public SiFn.Derv derv(Sc sc, SingeliParser.CallableContext c) {
-      if (c.texpr().size()!=0) throw new ParseError("deriving an already derived function", c);
+      if (c.t.texpr().size()!=0) throw new ParseError("deriving an already derived function", c);
       return d;
     }
   

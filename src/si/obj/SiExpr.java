@@ -14,6 +14,7 @@ import java.util.*;
 public class SiExpr {
   public static ProcRes TRUE = makeConst(BoolConst.TRUE);
   public static ProcRes FALSE = makeConst(BoolConst.FALSE);
+  public static ProcRes VOID = new ProcRes(VoidType.D, "_");
   public static ProcRes makeConst(Const c) { return new ProcRes(c.type(), "!"+c); }
   
   public static class ProcRes {
@@ -26,7 +27,7 @@ public class SiExpr {
     public String toString() { return t.toString(); }
   }
   public static ProcRes process(ChSc sc, ExprContext e) {
-    if (e instanceof VarExprContext) return sc.var(((VarExprContext) e).NAME().getText());
+    if (e instanceof VarExprContext) return sc.var(((VarExprContext) e).v.getText(), e.getStart());
     
     if (e instanceof TrueExprContext) return TRUE;
     if (e instanceof FalseExprContext) return FALSE;
@@ -47,10 +48,16 @@ public class SiExpr {
       String t = ec.ref.getText();
       return builtin(sc, ec.l, ec.r, ec.ref, t.equals(">")? sc.prog.gt : t.equals(">=")? sc.prog.ge : t.equals("<")? sc.prog.lt : t.equals("<=")? sc.prog.le : null);
     }
+    if (e instanceof DefCallExprContext) {
+      DefCallExprContext ec = (DefCallExprContext) e;
+      Def d = sc.getDef(ec.n.getText(), ec.n);
+      if (!(d instanceof SiDef.DefWrap)) throw new ParseError("Expected def, got "+d, ec.n);
+      return ((SiDef.DefWrap) d).exec(sc, ec.tinv(), ec.n);
+    }
     if (e instanceof CallExprContext) {
       CallExprContext ec = (CallExprContext) e;
       CallableContext c = ec.callable();
-      SiFn.Derv derv = sc.getFn(c.NAME().getText(), c.start).derv(sc, c);
+      SiFn.Derv derv = sc.getFn(c.n.getText(), c.start).derv(sc, c);
       List<ExprContext> args = ec.expr();
       if (args.size()!=derv.args.length) throw new ParseError("Incorrect argument count", ec);
       ProcRes[] pargs = new ProcRes[args.size()];
