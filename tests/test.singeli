@@ -1,4 +1,4 @@
-add{T}(a:*T, b:*T, r:*T, l:u64) : void {
+add{T}(a:*T, b:*T, r:*T, l:u64) : void = {
   i := 0u64;
   while (i<l) {
     set{T}(r, i, get{T}(a,i)+get{T}(b,i));
