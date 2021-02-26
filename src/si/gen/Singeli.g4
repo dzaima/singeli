@@ -23,7 +23,7 @@ texpr: dyn=':'? expr | callable;
 tinv: '{' (texpr (','texpr)*)? '}';
 callable: n=NAME t=tinv?;
 
-expr: v=NAME                              # varExpr
+expr: v=NAME tinv*                        # defExpr
     | v= INT                              # intExpr
     | v=TINT                              # tintExpr
     | v=(THEX|HEX)                        # hexExpr
@@ -35,7 +35,6 @@ expr: v=NAME                              # varExpr
     | '*' expr                            # ptrExpr
     | '$' NAME                            # fvecExpr
     | '[' expr ']' NAME                   # vecExpr
-    | n=NAME tinv*                        # defCallExpr
     | callable '(' (expr (','expr)*)? ')' # callExpr
     | l=expr ref=('*'|'/') r=expr         # mulExpr
     | l=expr ref=('+'|'-') r=expr         # addExpr
@@ -63,7 +62,7 @@ treq: l=expr '=' r=expr #eqReq
 targs: '{' (targ (','targ)*)? ('&' treq)* '}';
 arg: NAME ':' expr;
 
-fn: n=NAME targs? '(' (arg (','arg)*)? ')' (':' retT=expr)? ('{' stt* retV=expr? '}' | '=>' retV=expr ';');
+fn: n=NAME targs? '(' (arg (','arg)*)? ')' (':' retT=expr)? ('=' '{' stt* retV=expr? '}' | '=>' retV=expr ';');
 
 def: 'def' n=NAME targs* ('=' '{' stt* retV=expr? '}' | '=>' retV=expr ';');
 

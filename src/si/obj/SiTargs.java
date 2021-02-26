@@ -39,7 +39,7 @@ public class SiTargs {
   }
   
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  public boolean derv(Sc p, ChSc nsc, List<Def> targTypes) {
+  public boolean derv(Sc p, Sc nsc, List<Def> targTypes) {
     for (int i = 0; i < targTypes.size(); i++) {
       Def currD = targTypes.get(i);
       if (targSpec[i]!=null && !p.type(targSpec[i]).equals(currD)) return false;

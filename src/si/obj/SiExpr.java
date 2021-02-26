@@ -14,8 +14,12 @@ import java.util.*;
 public class SiExpr {
   public static ProcRes TRUE = makeConst(BoolConst.TRUE);
   public static ProcRes FALSE = makeConst(BoolConst.FALSE);
-  public static ProcRes VOID = new ProcRes(VoidType.D, "_");
+  public static ProcRes VOID = new ProcRes(VoidType.D, "!void");
   public static ProcRes makeConst(Const c) { return new ProcRes(c.type(), "!"+c); }
+  public static ProcRes makeConstQ(Def c) {
+    if (c instanceof Const) return makeConst((Const) c);
+    throw new ParseError("Expected constant, got "+c);
+  }
   
   public static class ProcRes {
     public final Type t;
@@ -27,7 +31,17 @@ public class SiExpr {
     public String toString() { return t.toString(); }
   }
   public static ProcRes process(ChSc sc, ExprContext e) {
-    if (e instanceof VarExprContext) return sc.var(((VarExprContext) e).v.getText(), e.getStart());
+    if (e instanceof DefExprContext) {
+      DefExprContext ec = (DefExprContext) e;
+      Def d = sc.anyObj(ec.v.getText(), ec.v);
+      List<TinvContext> tis = ec.tinv();
+      if (tis.size()==0) {
+        if (d instanceof RTVal) return ((RTVal) d).v;
+        if (d instanceof Const) return makeConst((Const) d);
+      }
+      if (d instanceof SiDef.DefWrap) return ((SiDef.DefWrap) d).exec(sc, tis, ec.v);
+      throw new ParseError("Unexpected value `"+d+"` for "+ec.v.getText(), ec.v);
+    }
     
     if (e instanceof TrueExprContext) return TRUE;
     if (e instanceof FalseExprContext) return FALSE;
@@ -47,12 +61,6 @@ public class SiExpr {
       RelExprContext ec = (RelExprContext) e;
       String t = ec.ref.getText();
       return builtin(sc, ec.l, ec.r, ec.ref, t.equals(">")? sc.prog.gt : t.equals(">=")? sc.prog.ge : t.equals("<")? sc.prog.lt : t.equals("<=")? sc.prog.le : null);
-    }
-    if (e instanceof DefCallExprContext) {
-      DefCallExprContext ec = (DefCallExprContext) e;
-      Def d = sc.getDef(ec.n.getText(), ec.n);
-      if (!(d instanceof SiDef.DefWrap)) throw new ParseError("Expected def, got "+d, ec.n);
-      return ((SiDef.DefWrap) d).exec(sc, ec.tinv(), ec.n);
     }
     if (e instanceof CallExprContext) {
       CallExprContext ec = (CallExprContext) e;
@@ -151,7 +159,16 @@ public class SiExpr {
   
   public static Def processDef(Sc sc, ExprContext e) {
     if (e instanceof GroupExprContext) return processDef(sc, ((GroupExprContext) e).expr());
-    if (e instanceof VarExprContext) return sc.getDef(((VarExprContext) e).NAME().getText(), e.getStart());
+    if (e instanceof DefExprContext) {
+      DefExprContext ec = (DefExprContext) e;
+      Def d = sc.getDef(ec.v.getText(), ec.v);
+      List<TinvContext> tis = ec.tinv();
+      if (d instanceof SiDef.DefWrap && ((SiDef.DefWrap) d).c()) return ((SiDef.DefWrap) d).getConst();
+      if (tis.size()==0) return d;
+      if (d instanceof SiDef.DefWrap) return ((SiDef.DefWrap) d).execConst(sc, tis, ec.v);
+      throw new ParseError("Unexpected value `"+d+"` for "+ec.v.getText(), ec.v);
+  
+    }
     
     if (e instanceof TrueExprContext) return BoolConst.TRUE;
     if (e instanceof FalseExprContext) return BoolConst.FALSE;
@@ -210,8 +227,8 @@ public class SiExpr {
   }
   public static Const processConst(Sc sc, ExprContext e) {
     Def d = processDef(sc, e);
-    if (!(d instanceof Const)) throw new ParseError("Expected a value, got "+d, e);
-    return (Const) d;
+    if (d instanceof Const) return (Const) d;
+    throw new ParseError("Expected a value, got "+d, e);
   }
   public static String processBool(ChSc sc, ExprContext e) {
     SiExpr.ProcRes cond = SiExpr.process(sc, e);

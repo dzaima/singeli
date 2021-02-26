@@ -40,7 +40,7 @@ public class SiFn {
     if (c.t != null) {
       List<TexprContext> ctxs = c.t.texpr();
       targTypes = new ArrayList<>(ctxs.size());
-      for (TexprContext e : ctxs) targTypes.add(sc.texpr(e));
+      for (TexprContext e : ctxs) targTypes.add(sc.constDef(e));
     } else {
       targTypes = new ArrayList<>();
     }

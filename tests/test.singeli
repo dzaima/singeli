@@ -1,3 +1,4 @@
+/*
 def d{T,a,b} = {
   c:T = a+b;
   a*c
@@ -5,3 +6,16 @@ def d{T,a,b} = {
 
 f{T,x}(a:T) => d{T,:a,x};
 'f'=f{i32, 5};
+*/
+
+def d => 2+2;
+def const{e} => e;
+
+f() : i32 =>       d ; 'f' = f;
+g() : i32 => const{d}; 'g' = g;
+
+def width{T::i16} => 16;
+def width{T::i32} => 32;
+w{T}() => width{T};
+'w16' = w{i16};
+'w32' = w{i32};

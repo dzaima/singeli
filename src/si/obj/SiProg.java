@@ -22,17 +22,15 @@ public class SiProg {
     try {
       for (String f : arch.defs) addFile(f);
     } catch (IOException e) { throw new RuntimeException(e); }
-    add = fns.get("__add");
-    sub = fns.get("__sub");
-    mul = fns.get("__mul");
-    div = fns.get("__div");
-    le = fns.get("__cmple");
-    lt = fns.get("__cmplt");
-    ge = fns.get("__cmpge");
-    gt = fns.get("__cmpgt");
+    add = ((CallableDef.FnDef)sc.defs.get("__add")).f;
+    sub = ((CallableDef.FnDef)sc.defs.get("__sub")).f;
+    mul = ((CallableDef.FnDef)sc.defs.get("__mul")).f;
+    div = ((CallableDef.FnDef)sc.defs.get("__div")).f;
+    le = ((CallableDef.FnDef)sc.defs.get("__cmple")).f;
+    lt = ((CallableDef.FnDef)sc.defs.get("__cmplt")).f;
+    ge = ((CallableDef.FnDef)sc.defs.get("__cmpge")).f;
+    gt = ((CallableDef.FnDef)sc.defs.get("__cmpgt")).f;
   }
-  
-  public final HashMap<String, ArrayList<SiFn>> fns = new HashMap<>();
   
   public void addFile(String path) throws IOException {
     add(new String(Files.readAllBytes(Paths.get(path))), path);
@@ -42,16 +40,15 @@ public class SiProg {
     SingeliParser.ProgContext prog = new SingeliParser(new CommonTokenStream(new SingeliLexer(CharStreams.fromString(s)))).prog();
     for (DefContext def : prog.def()) {
       SiDef d = new SiDef(def);
-      Def wrq = sc.defs.computeIfAbsent(d.name, k -> new SiDef.DefWrap(d.name));
+      Def wrq = sc.defs.computeIfAbsent(d.name, k -> new SiDef.DefWrap(sc, d.name));
       if (!(wrq instanceof SiDef.DefWrap)) throw new ParseError("Defining different constructs with the same name `"+d.name+"`", def);
       ((SiDef.DefWrap) wrq).alt(d);
     }
     
     for (FnContext fn : prog.fn()) {
       SiFn f = new SiFn(this, fn);
-      ArrayList<SiFn> alts = fns.computeIfAbsent(f.name, k -> new ArrayList<>());
-      alts.add(f);
-      sc.defs.put(f.name, new CallableDef.FnDef(alts, f.name));
+      CallableDef.FnDef def = (CallableDef.FnDef) sc.defs.computeIfAbsent(f.name, k -> new CallableDef.FnDef(new ArrayList<>(), f.name));
+      def.f.add(f);
     }
     
     HashMap<String, Void> symbols = new HashMap<>();
@@ -73,6 +70,7 @@ public class SiProg {
       } catch (ParseError e) {
         if (lns==null) lns = s.split("\n");
         System.err.println("'"+symb+"': "+e.get(lns, path));
+        e.printStackTrace();
         ok = false;
       } catch (Throwable t) {
         t.printStackTrace();
@@ -91,12 +89,12 @@ public class SiProg {
   }
   
   public ArrayList<SiFn> fn(String name) {
-    ArrayList<SiFn> f = fns.get(name);
-    if (f==null) throw new ParseError("Unknown fn "+name);
-    return f;
+    Def d = sc.getDefB(name);
+    if (!(d instanceof CallableDef.FnDef)) throw new ParseError("Unknown function "+name);
+    return ((CallableDef.FnDef) d).f;
   }
   
-  private StringBuilder ir = new StringBuilder();
+  private final StringBuilder ir = new StringBuilder();
   public void addFn(String s) {
     ir.append(s);
   }

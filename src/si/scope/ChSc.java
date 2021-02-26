@@ -49,18 +49,26 @@ public class ChSc extends Sc {
     if (v!=null) return v;
     
     Def d = defs.get(name);
-    if (d!=null) {
-      if (d instanceof Const) return SiExpr.makeConst((Const) d);
-      if (d instanceof RTVal) return ((RTVal) d).v;
+    if (d==null) {
+      if (p instanceof ChSc) return ((ChSc) p).var(name, ref);
+      d = p.getDef(name, ref);
     }
-    if (p instanceof ChSc) return ((ChSc) p).var(name, ref);
-    d = p.getDef(name, ref);
     if (d instanceof Const) return SiExpr.makeConst((Const) d);
     if (d instanceof RTVal) return ((RTVal) d).v;
     throw new ParseError("Unknown variable "+name, ref);
   }
-  public Def defRT(TexprContext e) {
+  public Def anyObj(String k, Token ref) {
+    SiExpr.ProcRes v = vars.get(k);
+    if (v!=null) return new RTVal(v);
+    Def d = defs.get(k);
+    if (d==null) {
+      if (p instanceof ChSc) return ((ChSc) p).anyObj(k, ref);
+      d = p.getDef(k, ref);
+    }
+    return d;
+  }
+  public Def dynDef(TexprContext e) {
     if (e.dyn!=null) return new RTVal(SiExpr.process(this, e.expr()));
-    return texpr(e);
+    return constDef(e);
   }
 }
