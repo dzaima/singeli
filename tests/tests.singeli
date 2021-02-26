@@ -1,11 +1,11 @@
-g{T,n}(a:T) {
+g{T,n}(a:T) = {
   x:T = n+a;
   x
 }
 'ok1' = g{i32, 5};
 'ok2' = g{i32, 1*2 + 3*4};
 
-addSep{A,B}(a:A, b:B) : A {
+addSep{A,B}(a:A, b:B) : A = {
   a+b
 }
 'ok3' = addSep{i32,i32};
@@ -18,19 +18,19 @@ h1{T,n}(a:[n]T, b:[n]T) : [n]T => a + b;
 mismatchedVectorSize{A,B}(a:A, b:B) => a + b;
 'mismatchedVectorSize' = mismatchedVectorSize{[4]i32, [8]i32};
 
-vecOfVecs{T}(a:[4]T) { }
+vecOfVecs{T}(a:[4]T) = { }
 'vecOfVecs' = vecOfVecs{[2]i32};
 
-recursion() { recursion(); }
+recursion() = { recursion(); }
 'recursion' = recursion;
 
-noReturn() { }
+noReturn() = { }
 'noReturn' = noReturn;
 
 badSize{T}(a:[T]i32) => a;
 'badSize' = badSize{i32};
 
-notConstant(a:i32) { x:[a]i32 = 5; 1 }
+notConstant(a:i32) = { x:[a]i32 = 5; 1 }
 'notConstant'=notConstant;
 
 addi32(a:i32, b:i32) => a+b;

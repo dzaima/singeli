@@ -1,14 +1,15 @@
 package si.types;
 
-import si.*;
-import si.gen.SingeliParser;
+import org.antlr.v4.runtime.Token;
+import si.ParseError;
+import si.gen.SingeliParser.*;
 import si.obj.SiFn;
 import si.scope.Sc;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public abstract class CallableDef extends Def {
-  public abstract SiFn.Derv derv(Sc sc, SingeliParser.CallableContext c);
+  public abstract SiFn.Derv derv(Sc sc, TinvContext t, Token ref);
   
   public static class FnDef extends CallableDef {
     public final ArrayList<SiFn> f;
@@ -17,8 +18,8 @@ public abstract class CallableDef extends Def {
       this.f = f;
       this.name = name;
     }
-    public SiFn.Derv derv(Sc sc, SingeliParser.CallableContext c) {
-      return SiFn.derv(f, sc, c);
+    public SiFn.Derv derv(Sc sc, TinvContext t, Token ref) {
+      return SiFn.derv(f, sc, t, ref);
     }
   
     public String toString() { return name; }
@@ -34,8 +35,8 @@ public abstract class CallableDef extends Def {
     public DervDef(SiFn.Derv d) {
       this.d = d;
     }
-    public SiFn.Derv derv(Sc sc, SingeliParser.CallableContext c) {
-      if (c.t.texpr().size()!=0) throw new ParseError("deriving an already derived function", c);
+    public SiFn.Derv derv(Sc sc, TinvContext t, Token ref) {
+      if (t!=null && t.texpr().size()!=0) throw new ParseError("deriving an already derived function", ref);
       return d;
     }
   

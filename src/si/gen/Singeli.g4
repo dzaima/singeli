@@ -19,7 +19,7 @@ F64: DEC 'd';
 
 REL: '<' | '>' | '<=' | '>=';
 
-texpr: dyn=':'? expr | callable;
+texpr: dyn=':'? expr;
 tinv: '{' (texpr (','texpr)*)? '}';
 callable: n=NAME t=tinv?;
 

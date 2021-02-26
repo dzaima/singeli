@@ -65,7 +65,7 @@ public class SiExpr {
     if (e instanceof CallExprContext) {
       CallExprContext ec = (CallExprContext) e;
       CallableContext c = ec.callable();
-      SiFn.Derv derv = sc.getFn(c.n.getText(), c.start).derv(sc, c);
+      SiFn.Derv derv = sc.getFn(c.n.getText(), c.start).derv(sc, c.t, c.n);
       List<ExprContext> args = ec.expr();
       if (args.size()!=derv.args.length) throw new ParseError("Incorrect argument count", ec);
       ProcRes[] pargs = new ProcRes[args.size()];
@@ -166,6 +166,9 @@ public class SiExpr {
       if (d instanceof SiDef.DefWrap && ((SiDef.DefWrap) d).c()) return ((SiDef.DefWrap) d).getConst();
       if (tis.size()==0) return d;
       if (d instanceof SiDef.DefWrap) return ((SiDef.DefWrap) d).execConst(sc, tis, ec.v);
+      if (d instanceof CallableDef.FnDef && tis.size()==1) {
+        return new CallableDef.DervDef(((CallableDef.FnDef) d).derv(sc, tis.get(0), ec.v));
+      }
       throw new ParseError("Unexpected value `"+d+"` for "+ec.v.getText(), ec.v);
   
     }

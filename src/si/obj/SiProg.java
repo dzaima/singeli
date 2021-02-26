@@ -60,7 +60,7 @@ public class SiProg {
         if (symbols.containsKey(symb)) throw new ParseError("Defining symbol "+symb+" twice", exp.SYMB());
         SingeliParser.CallableContext c = exp.callable();
         String fn = c.NAME().getText();
-        SiFn.Derv d = SiFn.derv(fn(fn), sc, c);
+        SiFn.Derv d = SiFn.derv(fn(fn), sc, c.t, c.n);
         ir.append("export ").append(d.id).append(' ').append(d.ret).append(' ').append(d.args.length);
         for (Type a : d.args) ir.append(' ').append(a);
         ir.append(' ').append(symb).append('\n');
@@ -70,7 +70,6 @@ public class SiProg {
       } catch (ParseError e) {
         if (lns==null) lns = s.split("\n");
         System.err.println("'"+symb+"': "+e.get(lns, path));
-        e.printStackTrace();
         ok = false;
       } catch (Throwable t) {
         t.printStackTrace();

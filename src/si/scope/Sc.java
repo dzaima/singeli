@@ -34,10 +34,7 @@ public class Sc {
   
   public final Def constDef(TexprContext te) {
     if (te.dyn!=null) throw new ParseError("Didn't expect runtime value", te);
-    ExprContext expr = te.expr();
-    if (expr!=null) return SiExpr.processDef(this, expr);
-    CallableContext c = te.callable();
-    return new CallableDef.DervDef(getFn(c.NAME().getText(), te.getStart()).derv(this, c));
+    return SiExpr.processDef(this, te.expr());
   }
   public final Type type(ExprContext e) {
     Def d = SiExpr.processDef(this, e);

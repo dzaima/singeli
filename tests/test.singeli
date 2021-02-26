@@ -1,13 +1,3 @@
-/*
-def d{T,a,b} = {
-  c:T = a+b;
-  a*c
-}
-
-f{T,x}(a:T) => d{T,:a,x};
-'f'=f{i32, 5};
-*/
-
 def d => 2+2;
 def const{e} => e;
 

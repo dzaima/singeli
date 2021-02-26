@@ -35,16 +35,16 @@ public class SiFn {
     }
   }
   
-  public static Derv derv(ArrayList<SiFn> fns, Sc sc, CallableContext c) {
+  public static Derv derv(ArrayList<SiFn> fns, Sc sc, TinvContext t, Token ref) {
     ArrayList<Def> targTypes;
-    if (c.t != null) {
-      List<TexprContext> ctxs = c.t.texpr();
+    if (t != null) {
+      List<TexprContext> ctxs = t.texpr();
       targTypes = new ArrayList<>(ctxs.size());
       for (TexprContext e : ctxs) targTypes.add(sc.constDef(e));
     } else {
       targTypes = new ArrayList<>();
     }
-    return derv(fns, sc, targTypes, c.n);
+    return derv(fns, sc, targTypes, ref);
   }
   
   public static Derv derv(ArrayList<SiFn> fns, Sc sc, List<Def> targTypes, Token tk) {
