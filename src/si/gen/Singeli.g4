@@ -50,10 +50,10 @@ stt: expr ';'                               # exprStt
    | '{' stt* '}'                           # blockStt
    | 'return' e=expr ';'                    # retnStt
    | 'while' '(' c=expr ')' t=stt           # whileStt
-   | 'exec' '('expr(','expr)*','NAME')' ';' # execStt
-   | '@'(c=callable | 'for') '(' (name2(','name2)* 'over')? i=NAME (('from' s=expr)? 'to' e=expr)? ')' stt # forStt
+   | 'exec' '('i=expr','o=expr','v=expr','b=expr')' ';' # execStt
+   | '@' c=callable '(' (NAME(','NAME)* 'over')? i=name2 (('from' s=expr)? 'to' e=expr)? ')' b=stt # forStt
    ;
-name2: NAME; // make retreiving separate names simpler
+name2: n=NAME; // make retreiving separate names simpler
 
 targ: name=NAME ('::' spec=expr)?;
 treq: l=expr '=' r=expr #eqReq

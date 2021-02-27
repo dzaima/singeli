@@ -31,6 +31,7 @@ public final class IntType extends NumType {
     }
   }
   public static final IntType i32 = defTypes.get("i32");
+  public static final IntType u64 = defTypes.get("u64");
   
   public Def mul(Def r) {
     if (!(r instanceof IntConst && ((IntConst) r).type.w<=32)) return super.mul(r);

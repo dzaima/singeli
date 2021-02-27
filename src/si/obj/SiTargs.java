@@ -38,11 +38,11 @@ public class SiTargs {
     size = targNames.length;
   }
   
-  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  public boolean derv(Sc p, Sc nsc, List<Def> targTypes) {
-    for (int i = 0; i < targTypes.size(); i++) {
-      Def currD = targTypes.get(i);
-      if (targSpec[i]!=null && !p.type(targSpec[i]).equals(currD)) return false;
+  
+  public boolean derv(Sc p, Sc nsc, Def[] targTypes) {
+    for (int i = 0; i < targTypes.length; i++) {
+      Def currD = targTypes[i];
+      if (targSpec[i]!=null && !nsc.type(targSpec[i]).equals(currD)) return false;
       Def prevD = nsc.defs.put(targNames[i], currD);
       if (prevD!=null && !prevD.equals(currD)) return false;
     }

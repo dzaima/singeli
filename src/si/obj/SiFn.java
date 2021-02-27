@@ -68,12 +68,12 @@ public class SiFn {
     Derv prev = cache.get(targTypes);
     if (prev!=null) return prev;
     ChSc nsc = new ChSc(sc);
-    if (!targs.derv(sc, nsc, targTypes)) return null;
+    if (!targs.derv(sc, nsc, targTypes.toArray(new Def[0]))) return null;
     
     Derv r = dervRaw(nsc, targTypes, tk);
     sc.prog.addFn(
       "beginFn "+r.id+" "+r.ret+" "+argNames.length+ // completed by fn def; very hacky
-      nsc.code.b.toString()+
+      nsc.b.toString()+
       (SiProg.COMMENTS? "endFn\n\n" : "endFn\n")
     );
     return r;
@@ -89,33 +89,32 @@ public class SiFn {
       
       
       ExprContext tc = ctx.retT;
-      nsc.code.ret = tc==null? null : nsc.type(tc);
+      nsc.ids.ret = tc==null? null : nsc.type(tc);
       for (int i = 0; i < argNames.length; i++) {
         ExprContext argType = argTypes[i];
         Type t = nsc.type(argType);
-        nsc.addVar(argNames[i], new SiExpr.ProcRes(t, nsc.code.next()));
-        nsc.code.b.append(' ').append(t);
+        nsc.addVar(argNames[i], new SiExpr.ProcRes(t, nsc.ids.next()));
+        nsc.b.append(' ').append(t);
       }
       
-      if (SiProg.COMMENTS) nsc.code.b.append(" # ").append(Derv.toString(name, vals));
+      if (SiProg.COMMENTS) nsc.b.append(" # ").append(Derv.toString(name, vals));
       
-      nsc.code.b.append('\n');
+      nsc.b.append('\n');
       ExprContext retExpr = ctx.retV;
-      List<SttContext> stts = ctx.stt();
-  
-      for (SttContext stt : stts) SiStt.process(nsc, stt);
-  
-      Type retType1 = nsc.code.ret;
+      
+      for (SttContext stt : ctx.stt()) SiStt.process(nsc, stt);
+      
+      Type retType1 = nsc.ids.ret;
       if (retExpr ==null) {
         if (retType1 ==null) throw new ParseError("Function must either end with an expression or specify a result type", ctx.n);
       } else {
         SiExpr.ProcRes r = SiExpr.process(nsc, retExpr);
         if (retType1 == null) retType1 = r.t;
         else if (!r.t.castableTo(retType1)) throw new ParseError("Incompatible return type: can't cast " + r.t + " to " + retType1, retExpr);
-        nsc.code.b.append("ret ").append(r.id).append('\n');
+        nsc.b.append("ret ").append(r.id).append('\n');
       }
       Type retType = retType1;
-  
+      
       Type[] realArgTypes = new Type[argTypes.length];
       for (int i = 0; i < argTypes.length; i++) realArgTypes[i] = nsc.type(argTypes[i]);
       Derv d = new Derv(this, retType, realArgTypes, vals, id);

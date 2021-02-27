@@ -11,7 +11,6 @@ import java.util.HashMap;
 
 public class ChSc extends Sc {
   public static class Builder {
-    public final StringBuilder b = new StringBuilder();
     public Type ret;
     
     public int varId = 0;
@@ -20,23 +19,32 @@ public class ChSc extends Sc {
     public int lblId = 0;
     public String nextLbl() { return "l" + lblId++; }
   }
-  public final Builder code;
+  public final Builder ids;
+  public final StringBuilder b;
+  public void mut(String k, String v) { b.append("mut ").append(k).append(' ').append(v).append('\n'); }
+  
+  
   public final HashMap<String, SiExpr.ProcRes> vars = new HashMap<>();
   
   public ChSc(Sc p) {
     super(p);
-    code = new Builder();
+    ids = new Builder();
+    b = new StringBuilder();
   }
   
   public ChSc(ChSc p, int mode) { // 1:keep ids; 2:keep everything
     super(p);
+    ids = p.ids;
     if (mode==2) {
-      code = p.code;
+      b = p.b;
     } else if (mode==1) {
-      code = new Builder();
-      code.lblId = p.code.lblId;
-      code.varId = p.code.varId;
+      b = new StringBuilder();
     } else throw new Error();
+  }
+  public ChSc(ChSc p, StringBuilder b) { // just change the StringBuilder
+    super(p);
+    ids = p.ids;
+    this.b = b;
   }
   
   

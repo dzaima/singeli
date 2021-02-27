@@ -74,11 +74,11 @@ public class SiExpr {
         if (!arg.t.castableTo(derv.args[i])) throw new ParseError("Incorrect argument type: expected "+ derv.args[i]+", got "+arg, args.get(i));
         pargs[i] = arg;
       }
-      return emitCall(sc, derv, pargs);
+      return emitCall(sc, derv, c.n.getText(), pargs);
     }
     if (e instanceof EmitExprContext) {
       EmitExprContext ec = (EmitExprContext) e;
-      String v = sc.code.next();
+      String v = sc.ids.next();
       List<ExprContext> exprs = ec.expr();
       Type t = sc.type(exprs.get(0));
       StringBuilder tmp = new StringBuilder();
@@ -86,7 +86,7 @@ public class SiExpr {
         ProcRes p = process(sc, ec.expr(i));
         tmp.append(' ').append(p.id);
       }
-      sc.code.b.append("new ").append(v).append(" emit ").append(t).append(' ').append(str(ec.STR())).append(tmp).append('\n');
+      sc.b.append("new ").append(v).append(" emit ").append(t).append(' ').append(str(ec.STR())).append(tmp).append('\n');
       return new ProcRes(t, v);
     }
     if (e instanceof FldExprContext) {
@@ -103,14 +103,15 @@ public class SiExpr {
   private static ProcRes builtin(ChSc sc, ExprContext lc, ExprContext rc, Token ref, ArrayList<SiFn> fn) {
     ProcRes l = process(sc, lc);
     ProcRes r = process(sc, rc);
-    return emitCall(sc, SiFn.derv(fn, sc, Arrays.asList(l.t, r.t), ref), l, r);
+    return emitCall(sc, SiFn.derv(fn, sc, Arrays.asList(l.t, r.t), ref), ref.getText(), l, r);
   }
   
-  private static ProcRes emitCall(ChSc sc, SiFn.Derv derv, ProcRes... args) {
-    String v = sc.code.next();
-    StringBuilder b = sc.code.b;
+  private static ProcRes emitCall(ChSc sc, SiFn.Derv derv, String cm, ProcRes... args) {
+    String v = sc.ids.next();
+    StringBuilder b = sc.b;
     b.append("new ").append(v).append(" call ").append(derv.ret).append(' ').append(derv.id).append(' ').append(args.length);
     for (ProcRes arg : args) b.append(' ').append(arg.id);
+    if (SiProg.COMMENTS) b.append(" # ").append(cm);
     b.append('\n');
     return new ProcRes(derv.ret, v);
   }

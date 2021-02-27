@@ -25,25 +25,45 @@ public class SiDef {
     for (int i = 0; i < t.length; i++) t[i] = new SiTargs(tl.get(i));
   }
   
+  private ChSc step(Def[] targs, ChSc c, int i) {
+    SiTargs ct = t[i];
+    if (ct.size != targs.length) return null;
+    ChSc n = new ChSc(c, 2);
+    if (!ct.derv(c, n, targs)) return null;
+    return n;
+  }
+  public static int lvl=0;
+  public SiExpr.ProcRes exec(ChSc p, Def[][] allTargs) {
+    if (allTargs.length!=t.length) return null;
+    ChSc c = new ChSc(p, 1);
+    for (int i = 0; i < t.length; i++) {
+      c = step(allTargs[i], c, i);
+      if (c == null) return null;
+    }
+    for (SttContext stt : stts) SiStt.process(c, stt);
+    SiExpr.ProcRes r = ret==null? SiExpr.VOID : SiExpr.process(c, ret);
+    p.b.append(c.b);
+    return r;
+  }
+  public static Def[] evalDyn(ChSc c, List<TexprContext> es) {
+    Def[] r = new Def[es.size()];
+    for (int i = 0; i < es.size(); i++) r[i] = c.dynDef(es.get(i));
+    return r;
+  }
   public SiExpr.ProcRes exec(ChSc p, List<TinvContext> tinv) {
     if (tinv.size()!=t.length) return null;
     ChSc c = new ChSc(p, 1);
     for (int i = 0; i < t.length; i++) {
-      SiTargs ct = t[i];
-      TinvContext cc = tinv.get(i);
-      List<TexprContext> es = cc.texpr();
-      if (ct.size!=es.size()) return null;
-      ChSc n = new ChSc(c, 2);
-      ArrayList<Def> targTypes = new ArrayList<>(es.size());
-      for (TexprContext e : es) targTypes.add(c.dynDef(e));
-      if (!ct.derv(c, n, targTypes)) return null;
-      c = n;
+      List<TexprContext> es = tinv.get(i).texpr();
+      c = step(evalDyn(c, es), c, i);
+      if (c==null) return null;
     }
     for (SttContext stt : stts) SiStt.process(c, stt);
     SiExpr.ProcRes r = ret==null? SiExpr.VOID : SiExpr.process(c, ret);
-    p.code.b.append(c.code.b);
+    p.b.append(c.b);
     return r;
   }
+  
   
   public Def execConst(Sc p, List<TinvContext> tinv) {
     if (tinv.size()!=t.length) return null;
@@ -55,9 +75,9 @@ public class SiDef {
       TinvContext cc = tinv.get(i);
       List<TexprContext> es = cc.texpr();
       if (ct.size!=es.size()) return null;
+      Def[] targTypes = new Def[es.size()];
+      for (int j = 0; j < es.size(); j++) targTypes[j] = c.constDef(es.get(j));
       WrSc n = new WrSc(c);
-      ArrayList<Def> targTypes = new ArrayList<>(es.size());
-      for (TexprContext e : es) targTypes.add(c.constDef(e));
       if (!ct.derv(c, n, targTypes)) return null;
       c = n;
     }
@@ -81,10 +101,17 @@ public class SiDef {
     public int hashCode() { return System.identityHashCode(this); }
     public boolean equals(Object o) { return this == o; }
     public String toString() { return name+":def"; }
-    
+  
     public SiExpr.ProcRes exec(ChSc sc, List<TinvContext> tinv, Token ref) {
       for (SiDef c : ds) {
         SiExpr.ProcRes r = c.exec(sc, tinv);
+        if (r!=null) return r;
+      }
+      throw new ParseError("No matching definition found", ref);
+    }
+    public SiExpr.ProcRes exec(ChSc sc, Def[][] allTargs, Token ref) {
+      for (SiDef c : ds) {
+        SiExpr.ProcRes r = c.exec(sc, allTargs);
         if (r!=null) return r;
       }
       throw new ParseError("No matching definition found", ref);

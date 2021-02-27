@@ -45,6 +45,7 @@ public final class IR2C {
           stts: while (true) {
             if (ln >= lns.length) throw new Error("Unfinished function");
             i = 0; s = lns[ln++];
+            // System.out.println(s);
             String op1 = name();
             switch (op1) {
               case "ret":
@@ -107,21 +108,42 @@ public final class IR2C {
                   }
                   case "val": {
                     String val = lit();
-                    b.append(val).append('\n');
+                    b.append(val);
+                    break;
+                  }
+                  case "deref": {
+                    String ptr = lit();
+                    String pos = lit();
+                    b.append(ptr).append('[').append(pos).append(']');
                     break;
                   }
                   default: throw new Error("Unknown operation: `"+s+"`");
                 }
                 b.append(";\n");
                 break;
-              case "endFn":
-                end();
-                break stts;
-              case "mut":
+              case "undef": {
+                String k = name();
+                String t = type();
+                b.append("  ").append(t).append(' ').append(k).append(";\n");
+                break;
+              }
+              case "ins": {
+                String t = type();
+                String ptr = lit();
+                String pos = lit();
+                String val = lit();
+                b.append("  ").append(ptr).append('[').append(pos).append("]=").append(val).append(";\n");
+                break;
+              }
+              case "mut": {
                 String k = name();
                 String v = lit();
                 b.append("  ").append(k).append(" = ").append(v).append(";\n");
                 break;
+              }
+              case "endFn":
+                end();
+                break stts;
               default: throw new Error("Unknown operation: `"+s+"`");
             }
             end();

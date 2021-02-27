@@ -1,11 +1,14 @@
-def d => 2+2;
-def const{e} => e;
+def for_each {s, e, vars, block} = {
+  i:= s;
+  while (i < e) {
+    exec(i, i, vars, block);
+    i = i+1u64;
+  }
+}
 
-f() : i32 =>       d ; 'f' = f;
-g() : i32 => const{d}; 'g' = g;
-
-def width{T::i16} => 16;
-def width{T::i32} => 32;
-w{T}() => width{T};
-'w16' = w{i16};
-'w32' = w{i32};
+f{T}(a:*T, b:*T, r:*T, l:u64) : void = {
+  @for_each(a, b, r over i from 0u64 to l) {
+    r = a+b;
+  }
+}
+'add_i32' = f{i32};

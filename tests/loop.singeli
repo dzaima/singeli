@@ -43,21 +43,21 @@ def offset{n, ptrs} = { def off{v} = v+n; each{off,vars} }
 
 def for_round_up{n} {begin::0,len,vars,block} = {
   l := (len+(n-1))/n;  # TODO: benchmark an overflow-safe divmod version
-  for_each{0, l, vecs{vars}, block}
+  for_each{0, l, vecs{n,vars}, block}
 }
 
 def for_scalar_tail{n} {begin::0,len,vars,block} = {
   l := len/n;
-  for_each     {0  , l  , vecs{vars}, block};
-  for_unroll{n}{l*n, len,      vars , block}
+  for_each     {0  , l  , vecs{n,vars}, block};
+  for_unroll{n}{l*n, len,        vars , block}
 }
 
 def for_overlap{n, for_small} {begin::0,len,vars,block} = {
   if (len <= n) {
     for_small{n}{0,len, vars,block}
   } else {
-    for_each{0, (len-1)/n, vecs{vars}, block};
-    exec{0, vecs{offset{len-n,vars}}, block}
+    for_each{0, (len-1)/n, vecs{n,vars}, block};
+    exec{0, vecs{n,offset{len-n,vars}}, block}
   }
 }
 def for_overlap{n} = for_overlap{n, for_each}

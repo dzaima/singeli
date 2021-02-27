@@ -4,6 +4,7 @@ import si.types.*;
 import si.types.num.IntType;
 
 public class IntConst extends Const {
+  public static final IntConst U64_0 = new IntConst(0, IntType.u64);
   public long val;
   public IntType type;
   
