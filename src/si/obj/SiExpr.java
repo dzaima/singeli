@@ -39,7 +39,7 @@ public class SiExpr {
         if (d instanceof RTVal) return ((RTVal) d).v;
         if (d instanceof Const) return makeConst((Const) d);
       }
-      if (d instanceof SiDef.DefWrap) return ((SiDef.DefWrap) d).exec(sc, tis, ec.v);
+      if (d instanceof DefDef) return ((DefDef) d).exec(sc, tis, ec.v);
       throw new ParseError("Unexpected value `"+d+"` for "+ec.v.getText(), ec.v);
     }
     
@@ -164,9 +164,9 @@ public class SiExpr {
       DefExprContext ec = (DefExprContext) e;
       Def d = sc.getDef(ec.v.getText(), ec.v);
       List<TinvContext> tis = ec.tinv();
-      if (d instanceof SiDef.DefWrap && ((SiDef.DefWrap) d).c()) return ((SiDef.DefWrap) d).getConst();
+      if (d instanceof DefDef && ((DefDef) d).c()) return ((DefDef) d).getConst();
       if (tis.size()==0) return d;
-      if (d instanceof SiDef.DefWrap) return ((SiDef.DefWrap) d).execConst(sc, tis, ec.v);
+      if (d instanceof DefDef) return ((DefDef) d).execConst(sc, tis, ec.v);
       if (d instanceof CallableDef.FnDef && tis.size()==1) {
         return new CallableDef.DervDef(((CallableDef.FnDef) d).derv(sc, tis.get(0), ec.v));
       }

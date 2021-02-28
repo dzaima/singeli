@@ -57,14 +57,14 @@ public class SiStt {
       String lf = sc.ids.nextLbl();
       String lt = c.f==null? null : sc.ids.nextLbl();
       
-      sc.b.append("gotoF ").append(cond).append(' ').append(lf).append('\n');
+      sc.gotoF(cond, lf);
       SiStt.process(sc, c.t);
-      if (c.f!=null) sc.b.append("goto ").append(lt).append('\n');
+      if (c.f!=null) sc.gotoA(lt);
       
-      sc.b.append("lbl ").append(lf).append('\n');
+      sc.lbl(lf);
       if (c.f!=null) {
         SiStt.process(sc, c.f);
-        sc.b.append("lbl ").append(lt).append('\n');
+        sc.lbl(lt);
       }
       return;
     }
@@ -72,12 +72,12 @@ public class SiStt {
       WhileSttContext c = (WhileSttContext) stt;
       String lCont = sc.ids.nextLbl();
       String lCond = sc.ids.nextLbl();
-      sc.b.append("goto ").append(lCond).append('\n');
-      sc.b.append("lbl ").append(lCont).append('\n');
+      sc.gotoA(lCond);
+      sc.lbl(lCont);
       SiStt.process(sc, c.t);
-      sc.b.append("lbl ").append(lCond).append('\n');
+      sc.lbl(lCond);
       String cond = SiExpr.processBool(sc, c.c);
-      sc.b.append("gotoT ").append(cond).append(' ').append(lCont).append('\n');
+      sc.gotoT(cond, lCont);
       return;
     }
     if (stt instanceof ForSttContext) {
@@ -105,7 +105,7 @@ public class SiStt {
       }
       
       Def[][] ds = new Def[c.c.t==null?1:2][];
-      if (c.c.t!=null) ds[0] = SiDef.evalDyn(sc, c.c.t.texpr());
+      if (c.c.t!=null) ds[0] = SiDef.evalDyn(sc, c.c.t);
       ds[ds.length-1] = new Def[]{
         c.s==null?IntConst.U64_0:new RTVal(SiExpr.process(sc, c.s)),
         new RTVal(SiExpr.process(sc, c.e)),
@@ -151,6 +151,18 @@ public class SiStt {
       
       sc.b.append(bsc.b);
       bsc.b.delete(0, bsc.b.length());
+      return;
+    }
+    // if (stt instanceof DefSttContext) {
+    //   SiDef d = new SiDef(((DefSttContext) stt).d);
+    //   Def wr = sc.defs.computeIfAbsent(d.name, k -> new SiDef.DefWrap(sc, k));
+    //   if (!(wr instanceof SiDef.DefWrap)) throw new ParseError("Defining different constructs with the same name `"+d.name+"`", ((DefSttContext) stt).d.n);
+    //   ((SiDef.DefWrap) wr).alt(d);
+    //   return;
+    // }
+    if (stt instanceof DefSttContext) {
+      DefSttContext c = (DefSttContext) stt;
+      sc.defs.put(c.n.getText(), SiExpr.processDef(sc, c.v));
       return;
     }
     throw new ParseError("TODO SiStt::process "+stt.getClass(), stt);

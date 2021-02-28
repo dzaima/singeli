@@ -4,7 +4,7 @@ import org.antlr.v4.runtime.*;
 import si.ParseError;
 import si.gen.*;
 import si.gen.SingeliParser.*;
-import si.scope.Sc;
+import si.scope.*;
 import si.types.*;
 
 import java.io.IOException;
@@ -19,6 +19,38 @@ public class SiProg {
   
   public SiProg(SiArch arch) {
     this.arch = arch;
+    sc.defs.put("goto", new DefDef.Dyn() {
+      public SiExpr.ProcRes exec(ChSc sc, List<TinvContext> tis, Token ref) {
+        if (tis.size()!=1) throw new ParseError("Expected one deriving", ref);
+        List<TexprContext> t = tis.get(0).texpr();
+        if (t.size()!=1&&t.size()!=2) throw new ParseError("Expected 1 or 2 args to goto", ref);
+        Def d = sc.dynDef(t.get(0));
+        if (!(d instanceof LblDef)) throw new ParseError("Expected 1st arg of goto to be a label", ref);
+        String lbl = ((LblDef) d).name;
+        if (t.size()==1) sc.gotoA(lbl);
+        else             sc.gotoT(SiExpr.processBool(sc, t.get(1).expr()), lbl);
+        return SiExpr.VOID;
+      }
+    });
+    sc.defs.put("label", new DefDef.Dyn() {
+      public SiExpr.ProcRes exec(ChSc sc, List<TinvContext> tis, Token ref) {
+        if (tis.size()!=1) throw new ParseError("Expected one deriving", ref);
+        List<TexprContext> t = tis.get(0).texpr();
+        if (t.size()!=1) throw new ParseError("Expected 1 or 2 args to goto", ref);
+        Def d = sc.getDef(t.get(0).getText(), t.get(0).getStart());
+        sc.lbl(((LblDef) d).name);
+        return SiExpr.VOID;
+      }
+    });
+    sc.defs.put("newLabel", new DefDef.Static() {
+      public Def execConst(Sc sc, List<TinvContext> tis, Token ref) {
+        if (tis.size()!=1) throw new ParseError("Expected one deriving", ref);
+        List<TexprContext> t = tis.get(0).texpr();
+        if (t.size()!=0) throw new ParseError("newLabel expected zero args", ref);
+        if (!(sc instanceof ChSc)) throw new ParseError("Expected newLabel to be within a valid scope");
+        return new LblDef(((ChSc) sc).ids.nextLbl());
+      }
+    });
     try {
       for (String f : arch.defs) addFile(f);
     } catch (IOException e) { throw new RuntimeException(e); }
@@ -37,10 +69,11 @@ public class SiProg {
   }
   private boolean ok = true;
   public void add(String s, String path) {
-    SingeliParser.ProgContext prog = new SingeliParser(new CommonTokenStream(new SingeliLexer(CharStreams.fromString(s)))).prog();
+    SingeliParser parser = new SingeliParser(new CommonTokenStream(new SingeliLexer(CharStreams.fromString(s))));
+    SingeliParser.ProgContext prog = parser.prog();
     for (DefContext def : prog.def()) {
       SiDef d = new SiDef(def);
-      Def wrq = sc.defs.computeIfAbsent(d.name, k -> new SiDef.DefWrap(sc, d.name));
+      Def wrq = sc.defs.computeIfAbsent(d.name, k -> new SiDef.DefWrap(sc, k));
       if (!(wrq instanceof SiDef.DefWrap)) throw new ParseError("Defining different constructs with the same name `"+d.name+"`", def);
       ((SiDef.DefWrap) wrq).alt(d);
     }

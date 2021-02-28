@@ -32,7 +32,6 @@ public class SiDef {
     if (!ct.derv(c, n, targs)) return null;
     return n;
   }
-  public static int lvl=0;
   public SiExpr.ProcRes exec(ChSc p, Def[][] allTargs) {
     if (allTargs.length!=t.length) return null;
     ChSc c = new ChSc(p, 1);
@@ -45,7 +44,8 @@ public class SiDef {
     p.b.append(c.b);
     return r;
   }
-  public static Def[] evalDyn(ChSc c, List<TexprContext> es) {
+  public static Def[] evalDyn(ChSc c, TinvContext t) {
+    List<TexprContext> es = t.texpr();
     Def[] r = new Def[es.size()];
     for (int i = 0; i < es.size(); i++) r[i] = c.dynDef(es.get(i));
     return r;
@@ -54,8 +54,7 @@ public class SiDef {
     if (tinv.size()!=t.length) return null;
     ChSc c = new ChSc(p, 1);
     for (int i = 0; i < t.length; i++) {
-      List<TexprContext> es = tinv.get(i).texpr();
-      c = step(evalDyn(c, es), c, i);
+      c = step(evalDyn(c, tinv.get(i)), c, i);
       if (c==null) return null;
     }
     for (SttContext stt : stts) SiStt.process(c, stt);
@@ -72,11 +71,8 @@ public class SiDef {
     WrSc c = new WrSc(p);
     for (int i = 0; i < t.length; i++) {
       SiTargs ct = t[i];
-      TinvContext cc = tinv.get(i);
-      List<TexprContext> es = cc.texpr();
-      if (ct.size!=es.size()) return null;
-      Def[] targTypes = new Def[es.size()];
-      for (int j = 0; j < es.size(); j++) targTypes[j] = c.constDef(es.get(j));
+      Def[] targTypes = evalConst(c, tinv.get(i));
+      if (ct.size!=targTypes.length) return null;
       WrSc n = new WrSc(c);
       if (!ct.derv(c, n, targTypes)) return null;
       c = n;
@@ -84,7 +80,14 @@ public class SiDef {
     return SiExpr.processDef(c, ret);
   }
   
-  public static class DefWrap extends Def {
+  public static Def[] evalConst(Sc c, TinvContext cc) {
+    List<TexprContext> es = cc.texpr();
+    Def[] targTypes = new Def[es.size()];
+    for (int j = 0; j < es.size(); j++) targTypes[j] = c.constDef(es.get(j));
+    return targTypes;
+  }
+  
+  public static class DefWrap extends DefDef {
     private final Sc sc;
     public final String name;
     ArrayList<SiDef> ds = new ArrayList<>();
@@ -98,8 +101,6 @@ public class SiDef {
       ds.add(d);
     }
     
-    public int hashCode() { return System.identityHashCode(this); }
-    public boolean equals(Object o) { return this == o; }
     public String toString() { return name+":def"; }
   
     public SiExpr.ProcRes exec(ChSc sc, List<TinvContext> tinv, Token ref) {

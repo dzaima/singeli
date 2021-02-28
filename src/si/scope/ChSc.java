@@ -22,7 +22,10 @@ public class ChSc extends Sc {
   public final Builder ids;
   public final StringBuilder b;
   public void mut(String k, String v) { b.append("mut ").append(k).append(' ').append(v).append('\n'); }
-  
+  public void gotoA(String lbl) { b.append("goto ").append(lbl).append('\n'); }
+  public void gotoT(String cond, String lbl) { b.append("gotoT ").append(cond).append(' ').append(lbl).append('\n'); }
+  public void gotoF(String cond, String lbl) { b.append("gotoF ").append(cond).append(' ').append(lbl).append('\n'); }
+  public void lbl(String lbl) { b.append("lbl ").append(lbl).append('\n'); }
   
   public final HashMap<String, SiExpr.ProcRes> vars = new HashMap<>();
   

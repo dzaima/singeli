@@ -1,14 +1,17 @@
-def for_each {s, e, vars, block} = {
-  i:= s;
-  while (i < e) {
-    exec(i, i, vars, block);
-    i = i+1u64;
-  }
+def for_each {begin, end, vars, block} = {
+  def loop = newLabel{}; def exit = newLabel{};
+  i:u64 = begin;
+  label{loop};
+  goto{exit, i>=end};
+  exec(i, i, vars, block);
+  i = i+1u64;
+  goto{loop};
+  label{exit};
 }
 
-f{T}(a:*T, b:*T, r:*T, l:u64) : void = {
+add_s{T}(a:*T, b:*T, r:*T, l:u64) : void = {
   @for_each(a, b, r over i from 0u64 to l) {
     r = a+b;
   }
 }
-'add_i32' = f{i32};
+'add_i32' = add_s{i32};

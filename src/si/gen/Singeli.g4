@@ -50,6 +50,7 @@ stt: expr ';'                               # exprStt
    | '{' stt* '}'                           # blockStt
    | 'return' e=expr ';'                    # retnStt
    | 'while' '(' c=expr ')' t=stt           # whileStt
+   | 'def' n=NAME '=' v=expr ';'            # defStt
    | 'exec' '('i=expr','o=expr','v=expr','b=expr')' ';' # execStt
    | '@' c=callable '(' (NAME(','NAME)* 'over')? i=name2 (('from' s=expr)? 'to' e=expr)? ')' b=stt # forStt
    ;
