@@ -1,4 +1,4 @@
 fn(a:u64, b:u64) : u64 = {
   a=b
-  emit{a}
+  emit{u64,a}
 }
