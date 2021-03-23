@@ -1,4 +1,12 @@
-fn(a:u64, b:u64) : u64 = {
-  a=b
-  emit{u64,a}
+def for{vars,begin,end,block} = {
+  i:u64 = begin
+  while (emit{u1,i,end}) { # lt
+    exec{i, vars,block}
+    i = emit{u64,i,1}      # add
+  }
+}
+
+memcpy(a:*u64, b:*u64, i:u64, j:u64) : *u64 = {
+  @for (a,b over _ from i to j) { a=b }
+  a
 }
