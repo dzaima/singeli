@@ -1,8 +1,8 @@
 def for{vars,begin,end,block} = {
   i:u64 = begin
-  while (emit{u1,i,end}) { # lt
+  while (emit{u1,'lt',i,end}) {
     exec{i, vars,block}
-    i = emit{u64,i,1}      # add
+    i = emit{u64,'add',i,1}
   }
 }
 
