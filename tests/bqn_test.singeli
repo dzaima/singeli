@@ -1,8 +1,11 @@
+def __lt{a,b} = emit{u1, 'lt', a, b}
+def __add{a,b} = emit{u64, 'add', a, b}
+
 def for{vars,begin,end,block} = {
   i:u64 = begin
-  while (emit{u1,'lt',i,end}) {
+  while (i<end) {
     exec{i, vars,block}
-    i = emit{u64,'add',i,1}
+    i = i+1
   }
 }
 
