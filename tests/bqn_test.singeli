@@ -13,3 +13,4 @@ memcpy(a:*u64, b:*u64, i:u64, j:u64) : *u64 = {
   @for (a,b over _ from i to j) { a=b }
   a
 }
+'memcpy_64' = memcpy
