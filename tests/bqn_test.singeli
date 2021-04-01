@@ -1,5 +1,7 @@
 def __lt{a,b} = emit{u1, 'lt', a, b}
-def __add{a,b} = emit{u64, 'add', a, b}
+def __add{a,b} = emit{type{a}, 'add', a, b}
+def __add{a,b & match{kind{b},'number'}} = a + cast{type{a},b}
+def __add{a,b & match{kind{a},'number'}} = cast{type{b},a} + b
 
 def for{vars,begin,end,block} = {
   i:u64 = begin
