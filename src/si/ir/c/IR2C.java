@@ -35,6 +35,7 @@ public final class IR2C {
     int ln = 0;
     while (ln < lns.length) {
       i = 0; s = lns[ln++];
+      if (s.length()==0) continue;
       switch (name()) {
         case "": {
           end();
@@ -117,7 +118,7 @@ public final class IR2C {
                   }
                   case "val": {
                     String val = lit();
-                    b.append(val).append('\n');
+                    b.append(val);
                     break;
                   }
                   default: throw new Error("Unknown operation: `"+s+"`");
@@ -172,6 +173,7 @@ public final class IR2C {
     }
   }
   private String name() {
+    if (i >= s.length()) throw new Error("Unfinished line: `"+s+"`");
     int p = s.indexOf(' ', i);
     String r;
     if (p==-1) p = s.length();
