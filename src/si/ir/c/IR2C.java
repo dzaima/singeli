@@ -206,9 +206,9 @@ public final class IR2C {
     while (c=='*') { i++; c = s.charAt(i); }
     int ptrs = i;
     if (c=='[') {
-      i = 2;
+      i += 2;
       while (s.charAt(i)!=']') { i++; if (i==s.length()) throw new Error("Bad type: `"+s+"`"); }
-      am = Integer.parseInt(s.substring(1, i));
+      am = Integer.parseInt(s.substring(ptrs+1, i));
       i++;
       c = s.charAt(i);
     } else am = -1;
