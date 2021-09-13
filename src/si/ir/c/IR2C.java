@@ -188,7 +188,7 @@ public final class IR2C {
       if (p<1) throw new Error("Invalid literal `"+s+"`");
       String val = s.substring(1, p);
       String ty = type(s.substring(p+1));
-      return "(("+ty+")"+val+(s.charAt(p)=='u'?"ull" : "ll")+")";
+      return "(("+ty+")"+val+(s.charAt(p+1)=='u'?"ull" : "ll")+")";
     }
     return s;
   }
