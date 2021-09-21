@@ -1,3 +1,5 @@
+Singeli development has moved to https://github.com/mlochbaum/Singeli. Original readme:
+
 # Singeli
 
 Singeli is now able to compile useful programs to C, but the lack of documentation or error reporting after parsing means it's still tough to work with.
